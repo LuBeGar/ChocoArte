@@ -1,0 +1,105 @@
+/*
+    Estilos css
+*/
+/* 
+    Created on : 18 abr 2025, 21:03:02
+    Author     : Lu
+*/
+.menu, .menu:active{
+    background-color: transparent;
+    border-color: transparent;
+}
+.menu:hover{
+    background-color: transparent;
+    border-color: transparent;
+}
+.producto img {
+    height: 250px;
+    object-fit: cover;
+}
+.btn-gold {
+    background-color: #b68d40;
+    color: white;
+}
+.btn-gold:hover {
+    background-color: #8c682b;
+}
+footer, .panel {
+    background: #8B4513;
+    color: white;
+}
+.panel a{
+    color: #ebcd95;
+}
+.panel a:hover{
+    color: #b68d40;
+}
+
+.accordion-button {
+    background-color: #b68d40;
+    color: white;
+}
+.accordion-button:not(.collapsed) {
+    background-color: #b68d40;
+    color: white;
+}
+
+.custom-carousel .carousel-item img {
+    width: 100%;
+    height: 100%;
+    background-size: cover
+}
+
+.custom-carousel {
+    border: 5px solid #b68d40;
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.8), 
+                0px 5px 10px rgba(0, 0, 0, 0.9); 
+    border-radius: 10px;
+    align-self: center;
+    width: 70%; 
+    height: 90%; 
+    overflow: hidden;
+}
+
+.carousel-color{
+    justify-content: center;
+    align-items: center;
+    background-color: #8B4513;
+    height: 90vh;
+}
+.custom-text-border {
+    -webkit-text-stroke: 1px #8B4513; 
+    color: white; 
+}
+
+.custom-text-shadow {
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3); 
+}
+
+body{
+    background-color: #ebcd95;
+}
+
+.sombra{
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.8);
+}
+
+.product-image {
+    width: 70%; 
+    max-width: 100%; 
+    height: 90%; 
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+footer {
+    margin-top: auto; 
+    width: 100%;
+}
+
+.text-chocoarte {
+    color: #8B4513; 
+}
