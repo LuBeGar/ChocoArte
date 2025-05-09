@@ -54,10 +54,10 @@ public class CrearDatos extends HttpServlet {
         ServicioProducto sprod = new ServicioProducto(emf);
         ServicioProductoPersonalizado spp = new ServicioProductoPersonalizado(emf);
 
-        // ---------- Crear Usuario ----------
+        // ---------- Crear Usuario NORMAL ----------
         Usuario usuario = new Usuario();
-        usuario.setNombre("LucÌa");
-        usuario.setEmail("lucia@correo.com");
+        usuario.setNombre("Luc√≠a");
+        usuario.setEmail("lucia@correo.com"); 
         usuario.setPassword("Contrasena123@");
         usuario.setDireccion("Calle Chocolate 123");
         usuario.setTipo("normal");
@@ -68,12 +68,36 @@ public class CrearDatos extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        usuario.setGenero("Femenino");
+        usuario.setGenero("femenino");
         usuario.setSaborFavorito("Negro");
-        usuario.setComentarios("Usuario de prueba creado autom·ticamente");
+        usuario.setComentarios("Usuario de prueba creado autom√°ticamente");
 
         try {
             su.create(usuario);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // ---------- Crear Usuario ADMIN ----------
+        Usuario admin = new Usuario();
+        admin.setNombre("Admin");
+        admin.setEmail("admin@admin.com");
+        admin.setPassword("Admin123@");
+        admin.setDireccion("Calle Central 456");
+        admin.setTipo("admin");
+        admin.setPuntos(0);
+        admin.setTelefono("987654321");
+        try {
+            admin.setFechaNacimiento(new SimpleDateFormat("yyyy-MM-dd").parse("1990-01-01"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        admin.setGenero("masculino");
+        admin.setSaborFavorito("Blanco");
+        admin.setComentarios("Administrador creado autom√°ticamente");
+
+        try {
+            su.create(admin);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,14 +106,14 @@ public class CrearDatos extends HttpServlet {
         Producto producto1 = new Producto();
         producto1.setTipo("Tarta Mediana");
         producto1.setDescripcion("Una deliciosa tarta hecha a mano con los mejores ingredientes");
-        producto1.setPrecio(25.50);
-        producto1.setImagen("tarta_corazon.jpg");
+        producto1.setPrecio(500);
+        producto1.setImagen("kraken.jpg");
 
         Producto producto2 = new Producto();
-        producto2.setTipo("Tarta PequeÒa");
-        producto2.setDescripcion("Tarta m·s pequeÒa pero igualmente deliciosa.");
-        producto2.setPrecio(15.00);
-        producto2.setImagen("tarta_pequena.jpg");
+        producto2.setTipo("Tarta Peque√±a");
+        producto2.setDescripcion("Tarta m√°s peque√±a pero igualmente deliciosa");
+        producto2.setPrecio(200);
+        producto2.setImagen("flor.jpg");
 
         try {
             sprod.create(producto1);
@@ -101,24 +125,25 @@ public class CrearDatos extends HttpServlet {
         // ---------- Crear Pedido ----------
         Pedido pedido = new Pedido();
         pedido.setFecha(new Date());
-        pedido.setEstado("pendiente");
-        pedido.setEntrega("EnvÌo a domicilio");
+        pedido.setEstado("completado");
+        pedido.setEntrega("domicilio");
+        pedido.setDireccionEntrega(usuario.getDireccion());
         pedido.setUsuario(usuario);
 
         // ---------- Crear Productos Personalizados ----------
         ProductoPersonalizado pp1 = new ProductoPersonalizado();
-        pp1.setForma("CorazÛn");
-        pp1.setAlergenos("Sin gluten");
-        pp1.setDescripcion("Tarta personalizada sin gluten en forma de corazÛn");
-        pp1.setPrecio(30.00); 
+        pp1.setForma("Coraz√≥n");
+        pp1.setAlergenos("sin-gluten");
+        pp1.setDescripcion("Tarta personalizada sin gluten en forma de coraz√≥n");
+        pp1.setPrecio(500);
         pp1.setPedido(pedido);
         pp1.setProducto(producto1);
 
         ProductoPersonalizado pp2 = new ProductoPersonalizado();
         pp2.setForma("Estrella");
-        pp2.setAlergenos("Contiene frutos secos");
-        pp2.setDescripcion("Tarta pequeÒa personalizada con decoraciÛn especial");
-        pp2.setPrecio(18.00);
+        pp2.setAlergenos("sin-alergenos");
+        pp2.setDescripcion("Tarta peque√±a personalizada con decoraci√≥n especial");
+        pp2.setPrecio(500);
         pp2.setPedido(pedido);
         pp2.setProducto(producto2);
 
@@ -127,8 +152,10 @@ public class CrearDatos extends HttpServlet {
         personalizados.add(pp2);
         pedido.setProductosPersonalizados(personalizados);
 
+        pedido.setPrecio(pp1.getPrecio() + pp2.getPrecio());
+
         try {
-            sp.create(pedido); 
+            sp.create(pedido);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -136,8 +163,8 @@ public class CrearDatos extends HttpServlet {
         // ---------- Crear Review ----------
         Review review = new Review();
         review.setValoracion(5);
-        review.setComentario("°La tarta estaba deliciosa y llegÛ a tiempo!");
-        review.setImagenes("review1.jpg,review2.jpg");
+        review.setComentario("La tarta estaba deliciosa y lleg√≥ a tiempo");
+        review.setImagenes("kraken.jpg");
         review.setUsuario(usuario);
 
         try {
@@ -148,19 +175,21 @@ public class CrearDatos extends HttpServlet {
 
         emf.close();
 
-        // Mostrar respuesta en HTML
+        // ---------- HTML ----------
         try (PrintWriter out = response.getWriter()) {
             out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Crear Usuario de Prueba</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Usuario de prueba creado con Èxito</h1>");
+            out.println("<html><head><title>Creaci√≥n de Datos</title></head><body>");
+            out.println("<h1>Usuarios de prueba creados exitosamente</h1>");
+
+            out.println("<h2>Usuario Normal</h2>");
             out.println("<p>Email: " + usuario.getEmail() + "</p>");
             out.println("<p>Nombre: " + usuario.getNombre() + "</p>");
-            out.println("</body>");
-            out.println("</html>");
+
+            out.println("<h2>Usuario Administrador</h2>");
+            out.println("<p>Email: " + admin.getEmail() + "</p>");
+            out.println("<p>Nombre: " + admin.getNombre() + "</p>");
+
+            out.println("</body></html>");
         }
     }
 
