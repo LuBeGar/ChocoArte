@@ -4,14 +4,16 @@
 package modelo.entidades;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -33,14 +35,11 @@ public class Producto implements Serializable {
     private String descripcion;
 
     private double precio;
+    
+    private String imagen;
 
-    @Column(length = 50)
-    private String forma;
-
-    @ManyToOne
-    @JoinColumn(name = "pedido_id", nullable = false)
-    private Pedido pedido;
-
+    @OneToMany(mappedBy = "producto")
+    private List<ProductoPersonalizado> productosPersonalizados = new ArrayList<>();
     
     public Long getId() {
         return id;
@@ -74,21 +73,22 @@ public class Producto implements Serializable {
         this.precio = precio;
     }
 
-    public String getForma() {
-        return forma;
+    public String getImagen() {
+        return imagen;
     }
 
-    public void setForma(String forma) {
-        this.forma = forma;
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 
-    public Pedido getPedido() {
-        return pedido;
+    public List<ProductoPersonalizado> getProductosPersonalizados() {
+        return productosPersonalizados;
     }
 
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
+    public void setProductosPersonalizados(List<ProductoPersonalizado> productosPersonalizados) {
+        this.productosPersonalizados = productosPersonalizados;
     }
+
 
     @Override
     public int hashCode() {

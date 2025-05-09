@@ -12,7 +12,7 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import modelo.entidades.Pedido;
-import modelo.entidades.Producto;
+import modelo.entidades.ProductoPersonalizado;
 import modelo.entidades.Usuario;
 import modelo.servicio.exceptions.NonexistentEntityException;
 
@@ -46,13 +46,18 @@ public class ServicioPedido implements Serializable {
             }
 
             // Relación con productos
-            if (pedido.getProductos() != null) {
-                for (Producto producto : pedido.getProductos()) {
-                    producto.setPedido(pedido); // relación bidireccional
+            // Calcular el precio total del pedido sumando los precios de los productos
+            double precioTotal = 0;
+            if (pedido.getProductosPersonalizados() != null) {
+                for (ProductoPersonalizado producto : pedido.getProductosPersonalizados()) {
+                    producto.setPedido(pedido);
+                    precioTotal += producto.getPrecio(); // Sumar el precio del producto al total
                     em.persist(producto);
                 }
             }
 
+            // Establecer el precio total del pedido
+            pedido.setPrecio(precioTotal);
             em.persist(pedido);
             em.getTransaction().commit();
         } finally {
@@ -79,16 +84,16 @@ public class ServicioPedido implements Serializable {
             }
 
             // Eliminar productos anteriores si ya no están
-            List<Producto> oldProductos = persistentPedido.getProductos();
-            List<Producto> newProductos = pedido.getProductos();
-            for (Producto prod : oldProductos) {
+            List<ProductoPersonalizado> oldProductos = persistentPedido.getProductosPersonalizados();
+            List<ProductoPersonalizado> newProductos = pedido.getProductosPersonalizados();
+            for (ProductoPersonalizado prod : oldProductos) {
                 if (!newProductos.contains(prod)) {
                     em.remove(em.contains(prod) ? prod : em.merge(prod));
                 }
             }
 
             // Agregar o actualizar productos nuevos
-            for (Producto producto : newProductos) {
+            for (ProductoPersonalizado producto : newProductos) {
                 producto.setPedido(pedido);
                 em.merge(producto);
             }
@@ -122,7 +127,7 @@ public class ServicioPedido implements Serializable {
             }
 
             // Eliminar productos asociados
-            for (Producto producto : pedido.getProductos()) {
+            for (ProductoPersonalizado producto : pedido.getProductosPersonalizados()) {
                 em.remove(em.contains(producto) ? producto : em.merge(producto));
             }
 
@@ -130,7 +135,7 @@ public class ServicioPedido implements Serializable {
             Usuario usuario = pedido.getUsuario();
             if (usuario != null) {
                 usuario = em.merge(usuario);
-                usuario.getPedidos().remove(pedido); 
+                usuario.getPedidos().remove(pedido);
             }
 
             em.remove(pedido);
@@ -187,5 +192,40 @@ public class ServicioPedido implements Serializable {
             em.close();
         }
     }
+
+    // Recupera un pedido con sus productos personalizados
+    public Pedido findPedidoConProductosPersonalizados(Long id) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT p FROM Pedido p LEFT JOIN FETCH p.productosPersonalizados WHERE p.id = :id", Pedido.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
+    // Marca un pedido como confirmado
+    public void confirmarPedido(Long id, String entrega, String direccion) {
+    EntityManager em = getEntityManager();
+    try {
+        em.getTransaction().begin();
+        Pedido pedido = em.find(Pedido.class, id);
+        if (pedido != null) {
+            pedido.setEstado("Confirmado");
+            pedido.setEntrega(entrega);
+            if ("domicilio".equalsIgnoreCase(entrega)) {
+                pedido.setDireccionEntrega(direccion);
+            } else {
+                pedido.setDireccionEntrega(null); 
+            }
+            em.merge(pedido);
+        }
+        em.getTransaction().commit();
+    } finally {
+        em.close();
+    }
 }
 
+}

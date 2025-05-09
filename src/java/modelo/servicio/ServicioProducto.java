@@ -4,12 +4,13 @@
 package modelo.servicio;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import modelo.entidades.Producto;
-import modelo.entidades.Pedido;
+import modelo.entidades.ProductoPersonalizado;
 import modelo.servicio.exceptions.NonexistentEntityException;
 
 /**
@@ -18,51 +19,59 @@ import modelo.servicio.exceptions.NonexistentEntityException;
  */
 public class ServicioProducto implements Serializable {
 
+    private EntityManagerFactory emf;
+
     public ServicioProducto(EntityManagerFactory emf) {
         this.emf = emf;
     }
-
-    private EntityManagerFactory emf = null;
 
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
 
     public void create(Producto producto) {
-        EntityManager em = null;
+        if (producto.getProductosPersonalizados() == null) {
+            producto.setProductosPersonalizados(new ArrayList<>());
+        }
+
+        EntityManager em = getEntityManager();
         try {
-            em = getEntityManager();
             em.getTransaction().begin();
 
-            // Relación con Pedido
-            Pedido pedido = producto.getPedido();
-            if (pedido != null) {
-                pedido = em.getReference(pedido.getClass(), pedido.getId());
-                producto.setPedido(pedido);
+            // Establecer relación inversa
+            for (ProductoPersonalizado personalizado : producto.getProductosPersonalizados()) {
+                personalizado.setProducto(producto);
             }
 
             em.persist(producto);
             em.getTransaction().commit();
         } finally {
-            if (em != null) {
-                em.close();
-            }
+            em.close();
         }
     }
 
     public void edit(Producto producto) throws NonexistentEntityException, Exception {
-        EntityManager em = null;
+        EntityManager em = getEntityManager();
         try {
-            em = getEntityManager();
             em.getTransaction().begin();
 
-            Producto persistentProducto = em.find(Producto.class, producto.getId());
-            Pedido pedidoOld = persistentProducto.getPedido();
-            Pedido pedidoNew = producto.getPedido();
+            Producto productoPersistente = em.find(Producto.class, producto.getId());
 
-            if (pedidoNew != null) {
-                pedidoNew = em.getReference(pedidoNew.getClass(), pedidoNew.getId());
-                producto.setPedido(pedidoNew);
+            // Obtener productos personalizados actuales y nuevos
+            List<ProductoPersonalizado> productosAntiguos = productoPersistente.getProductosPersonalizados();
+            List<ProductoPersonalizado> productosNuevos = producto.getProductosPersonalizados();
+
+            // Eliminar referencias que ya no existen
+            for (ProductoPersonalizado antiguo : productosAntiguos) {
+                if (!productosNuevos.contains(antiguo)) {
+                    antiguo.setProducto(null);
+                    em.merge(antiguo);
+                }
+            }
+
+            // Establecer la relación con el producto actualizado
+            for (ProductoPersonalizado nuevo : productosNuevos) {
+                nuevo.setProducto(producto);
             }
 
             producto = em.merge(producto);
@@ -74,18 +83,16 @@ public class ServicioProducto implements Serializable {
             }
             throw ex;
         } finally {
-            if (em != null) {
-                em.close();
-            }
+            em.close();
         }
     }
 
     public void destroy(Long id) throws NonexistentEntityException {
-        EntityManager em = null;
+        EntityManager em = getEntityManager();
         try {
-            em = getEntityManager();
             em.getTransaction().begin();
             Producto producto;
+
             try {
                 producto = em.getReference(Producto.class, id);
                 producto.getId();
@@ -93,12 +100,17 @@ public class ServicioProducto implements Serializable {
                 throw new NonexistentEntityException("El producto con ID " + id + " ya no existe.", enfe);
             }
 
+            // Romper relación con personalizados sin eliminarlos
+            List<ProductoPersonalizado> personalizados = producto.getProductosPersonalizados();
+            for (ProductoPersonalizado personalizado : personalizados) {
+                personalizado.setProducto(null);
+                em.merge(personalizado);
+            }
+
             em.remove(producto);
             em.getTransaction().commit();
         } finally {
-            if (em != null) {
-                em.close();
-            }
+            em.close();
         }
     }
 

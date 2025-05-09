@@ -4,7 +4,7 @@
     Author     : Lu
 --%>
 
-<%@page contentType="text/html" pageEncoding="ISO-8859-1"%>
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
@@ -22,7 +22,7 @@
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-light sticky-top bg-white shadow-sm">
             <div class="container">
-                <!-- Logo y menú  -->
+                <!-- Logo y menÃº  -->
                 <div class="dropdown">
                     <button class="btn dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown"
                             aria-expanded="false">
@@ -36,19 +36,19 @@
                         <li><a class="dropdown-item" href="#testimonios"><i class="fas fa-heart me-1"></i> Lo que dicen
                                 nuestros clientes</a></li>
                         <li><a class="dropdown-item" href="#contacto"><i class="fa-solid fa-address-card me-1"></i>
-                                Contáctanos</a></li>
+                                ContÃ¡ctanos</a></li>
                     </ul>
                 </div>
 
-                <!-- Botón hamburguesa -->
+                <!-- BotÃ³n hamburguesa -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-               <!-- Menú colapsable -->
+                <!-- MenÃº colapsable -->
                 <div class="collapse navbar-collapse ms-auto justify-content-end" id="navbarNav">
-                    <!-- Formulario de búsqueda -->
+                    <!-- Formulario de bÃºsqueda -->
                     <div>
                         <form class="d-flex mb-3 mb-lg-0 ml-3">
                             <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Buscar">
@@ -56,20 +56,33 @@
                         </form>
                     </div>
 
-                    <!-- Verificar si el usuario está logueado -->
+                    <!-- Verificar si el usuario estÃ¡ logueado -->
                     <c:choose>
                         <c:when test="${not empty sessionScope.usuario}">
-                            <!-- Si el usuario está logueado, muestra su nombre -->
-                            <div class="d-flex flex-column flex-lg-row ">
-                                <span class="btn btn-outline-secondary mb-2 mb-lg-0 ms-lg-3">
-                                    Hola, ${sessionScope.usuario.nombre} 
-                                </span>
+                            <!-- Si el usuario estÃ¡ logueado, muestra su nombre como dropdown -->
+                            <div class="dropdown mb-2 mb-lg-0 ms-lg-3">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                    Hola, ${sessionScope.usuario.nombre}
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <c:choose>
+                                        <c:when test="${not empty sessionScope.usuario and sessionScope.usuario.tipo == 'admin'}">
+                                            <li><a class="dropdown-item" href="ControladorUsuario"><i class="fas fa-box me-1"></i>MenÃº de administraciÃ³n</a></li>
+                                            </c:when>
+                                            <c:otherwise>
+                                            <li><a class="dropdown-item" href="ControladorInicio"><i class="fas fa-user me-1"></i> Mi perfil</a></li>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="ControladorCerrarSesion"><i class="fas fa-sign-out-alt me-1"></i> Cerrar sesiÃ³n</a></li>
+                                </ul>
                             </div>
                         </c:when>
                         <c:otherwise>
-                            <!-- Si el usuario no está logueado, muestra los botones de login y registro -->
+                            <!-- Si el usuario no estÃ¡ logueado, muestra los botones de login y registro -->
                             <div class="d-flex flex-column flex-lg-row ">
-                                <a href="ControladorLogin" class="btn btn-outline-primary mb-2 mb-lg-0 ms-lg-3"><i class="fas fa-sign-in-alt me-1"></i> Iniciar sesión</a>
+                                <a href="ControladorLogin" class="btn btn-outline-primary mb-2 mb-lg-0 ms-lg-3"><i class="fas fa-sign-in-alt me-1"></i> Iniciar sesiÃ³n</a>
                                 <a href="ControladorRegistro" class="btn btn-outline-success mb-2 mb-lg-0 ms-lg-3 ">
                                     <i class="fas fa-user-plus me-1"></i> Registrarse</a>
                             </div>
@@ -78,7 +91,6 @@
                 </div>
             </div>
         </nav>
-
 
         <div class="d-sm-flex w-100 carousel-color d-none">
             <!-- Slider -->
@@ -90,7 +102,7 @@
                              alt="Chocolate">
                         <div class="carousel-caption d-none d-md-block">
                             <h1 class="text-warning custom-text-border custom-text-shadow">ChocoArte</h1>
-                            <p class="custom-text-border custom-text-shadow">Las tartas de tus sueños</p>
+                            <p class="custom-text-border custom-text-shadow">Las tartas de tus sueÃ±os</p>
                         </div>
                     </div>
 
@@ -122,24 +134,24 @@
             </div>
         </div>
 
-        <!-- Sección de Información sobre ChocoArte -->
+        <!-- SecciÃ³n de InformaciÃ³n sobre ChocoArte -->
         <section id="nosotros" class="py-5 ">
             <div class="container">
                 <div class="row">
                     <!-- Columna de texto -->
                     <div class="col-md-6">
                         <h2 class="text-center mb-4 custom-text-shadow text-chocoarte">Sobre ChocoArte</h2>
-                        <p class="lead">ChocoArte es una tienda especializada en la creación de tartas personalizadas,
-                            ideales para cualquier tipo de celebración. Nos apasiona el arte de la repostería, combinando la
+                        <p class="lead">ChocoArte es una tienda especializada en la creaciÃ³n de tartas personalizadas,
+                            ideales para cualquier tipo de celebraciÃ³n. Nos apasiona el arte de la reposterÃ­a, combinando la
                             creatividad y el sabor en cada uno de nuestros productos. Nuestro objetivo es hacer que cada
-                            evento sea aún más especial con un toque dulce y único.</p>
-                        <p class="lead">Con años de experiencia en el sector de la pastelería, nuestro equipo de expertos se
-                            dedica a ofrecer productos frescos, de la más alta calidad y diseñados a medida según las
-                            preferencias de cada cliente. Ya sea para un cumpleaños, boda, fiesta o evento corporativo,
-                            estamos aquí para crear la tarta perfecta para ti.</p>
+                            evento sea aÃºn mÃ¡s especial con un toque dulce y Ãºnico.</p>
+                        <p class="lead">Con aÃ±os de experiencia en el sector de la pastelerÃ­a, nuestro equipo de expertos se
+                            dedica a ofrecer productos frescos, de la mÃ¡s alta calidad y diseÃ±ados a medida segÃºn las
+                            preferencias de cada cliente. Ya sea para un cumpleaÃ±os, boda, fiesta o evento corporativo,
+                            estamos aquÃ­ para crear la tarta perfecta para ti.</p>
                         <p class="lead">Nos enorgullece utilizar solo los mejores ingredientes para garantizar un sabor
-                            delicioso en cada bocado. Además, nos aseguramos de que cada tarta sea una obra de arte,
-                            cuidando cada detalle en su decoración. ¡Haz tu evento aún más memorable con ChocoArte!</p>
+                            delicioso en cada bocado. AdemÃ¡s, nos aseguramos de que cada tarta sea una obra de arte,
+                            cuidando cada detalle en su decoraciÃ³n. Â¡Haz tu evento aÃºn mÃ¡s memorable con ChocoArte!</p>
                     </div>
                     <!-- Imagen -->
                     <div class="col-md-6 d-flex justify-content-center align-items-center">
@@ -190,7 +202,7 @@
                             <h2 class="accordion-header">
                                 <button class="accordion-button filtrar" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#tamano" aria-expanded="false">
-                                    Tamaño de tarta
+                                    TamaÃ±o de tarta
                                 </button>
                             </h2>
                             <div id="tamano" class="accordion-collapse collapse show" data-bs-parent="#filtro">
@@ -198,7 +210,7 @@
                                     <div><input type="checkbox"> XXL</div>
                                     <div><input type="checkbox"> Grande</div>
                                     <div><input type="checkbox"> Mediana</div>
-                                    <div><input type="checkbox"> Pequeña</div>
+                                    <div><input type="checkbox"> PequeÃ±a</div>
                                 </div>
                             </div>
                         </div>
@@ -209,91 +221,30 @@
                 <div class="col-md-9" id="productos">
                     <h1 class="text-center mb-4 custom-text-shadow text-chocoarte">Nuestros productos</h1>
                     <div class="row">
-                        <div class="col-md-4">
-                            <div class="card producto mb-3 shadow">
-                                <img src="img/doll.jpg" class="card-img-top" alt="Producto">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Tarta XXL</h5>
-                                    <p class="card-text"></p>
-                                    <a href="producto.jsp" class="btn btn-gold"><i class="fas fa-shopping-cart me-1"></i> Hacer un
-                                        pedido</a>
+                        <c:forEach var="producto" items="${productos}">
+                            <div class="col-md-4">
+                                <div class="card producto mb-3 shadow">
+                                    <c:if test="${not empty producto.imagen}">
+                                        <img src="${pageContext.request.contextPath}/imagenes/${producto.imagen}">
+                                    </c:if>
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">${producto.tipo}</h5>
+                                        <p class="card-text">${producto.precio} â‚¬</p>
+                                        <p class="card-text">${producto.descripcion}</p>
+                                        <a href="ControladorDetalleProducto?id=${producto.id}" class="btn btn-gold">
+                                            <i class="fas fa-shopping-cart me-1"></i> Hacer un pedido
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card producto mb-3 shadow">
-                                <img src="img/dragonawa.jpg" class="card-img-top" alt="Producto">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Tarta Grande</h5>
-                                    <p class="card-text"></p>
-                                    <a href="producto.jsp" class="btn btn-gold"><i class="fas fa-shopping-cart me-1"></i> Hacer un
-                                        pedido</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="card producto mb-3 shadow">
-                                <img src="img/piano.jpg" class="card-img-top" alt="Producto">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Tarta mediana</h5>
-                                    <p class="card-text"></p>
-                                    <a href="producto.jsp" class="btn btn-gold"><i class="fas fa-shopping-cart me-1"></i> Hacer un
-                                        pedido</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card producto mb-3 shadow">
-                                <img src="img/flor.jpg" class="card-img-top" alt="Producto">
-                                <div class="card-body text-center ">
-                                    <h5 class="card-title">Tarta pequeña</h5>
-                                    <p class="card-text"></p>
-                                    <a href="producto.jsp" class="btn btn-gold"><i class="fas fa-shopping-cart me-1"></i> Hacer un
-                                        pedido</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card producto mb-3 shadow">
-                                <img src="img/cupflores.jpg" class="card-img-top" alt="Producto">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Cupcakes</h5>
-                                    <p class="card-text"></p>
-                                    <a href="producto.jsp" class="btn btn-gold"><i class="fas fa-shopping-cart me-1"></i> Hacer un
-                                        pedido</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card producto mb-3 shadow">
-                                <img src="img/galletasmario.jpg" class="card-img-top" alt="Producto">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Galletas</h5>
-                                    <p class="card-text"></p>
-                                    <a href="producto.jsp" class="btn btn-gold"><i class="fas fa-shopping-cart me-1"></i> Hacer un
-                                        pedido</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card producto mb-3 shadow">
-                                <img src="img/bombones.png" class="card-img-top" alt="Producto">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Bombones</h5>
-                                    <p class="card-text"></p>
-                                    <a href="producto.jsp" class="btn btn-gold"><i class="fas fa-shopping-cart me-1"></i> Hacer un
-                                        pedido</a>
-                                </div>
-                            </div>
-                        </div>
+                        </c:forEach>
                     </div>
                 </div>
             </div>
         </div>
 
         <hr>
-        <!-- Sección de Testimonios -->
+        <!-- SecciÃ³n de Testimonios -->
         <section id="testimonios" class=" py-5">
             <div class="container">
                 <h2 class="text-center mb-4 custom-text-shadow text-chocoarte">Lo que nuestros clientes dicen</h2>
@@ -303,9 +254,9 @@
                         <div class="card shadow">
                             <div class="card-body">
                                 <p class="card-text">"Las tartas de ChocoArte son una verdadera obra de arte. No solo son
-                                    deliciosas, sino que también se ven increíbles. ¡Mi cumpleaños fue un éxito gracias a
+                                    deliciosas, sino que tambiÃ©n se ven increÃ­bles. Â¡Mi cumpleaÃ±os fue un Ã©xito gracias a
                                     ellos!"</p>
-                                <h5 class="card-title">Laura González</h5>
+                                <h5 class="card-title">Laura GonzÃ¡lez</h5>
                                 <p class="text-muted">Cliente satisfecha</p>
                             </div>
                         </div>
@@ -316,7 +267,7 @@
                         <div class="card shadow">
                             <div class="card-body">
                                 <p class="card-text ">"No puedo recomendar lo suficiente a ChocoArte. Hicieron una tarta de
-                                    bodas que dejó a todos sin palabras. El sabor era espectacular y la decoración
+                                    bodas que dejÃ³ a todos sin palabras. El sabor era espectacular y la decoraciÃ³n
                                     perfecta."</p>
                                 <h5 class="card-title">Carlos y Ana</h5>
                                 <p class="text-muted">Pareja feliz</p>
@@ -328,9 +279,9 @@
                     <div class="col-md-4 mb-3">
                         <div class="card shadow">
                             <div class="card-body">
-                                <p class="card-text">"Cada vez que ordeno con ChocoArte, quedo impresionado. Son rápidos,
-                                    amables, y sobre todo, sus productos son deliciosos. ¡Siempre los recomiendo!"</p>
-                                <h5 class="card-title">Pedro Martínez</h5>
+                                <p class="card-text">"Cada vez que ordeno con ChocoArte, quedo impresionado. Son rÃ¡pidos,
+                                    amables, y sobre todo, sus productos son deliciosos. Â¡Siempre los recomiendo!"</p>
+                                <h5 class="card-title">Pedro MartÃ­nez</h5>
                                 <p class="text-muted">Cliente recurrente</p>
                             </div>
                         </div>
@@ -343,7 +294,7 @@
         <!-- Formulario de Contacto -->
         <section id="contacto" class="my-3 py-5">
             <div class="container">
-                <h2 class="text-center mb-4 custom-text-shadow text-chocoarte">Contáctanos</h2>
+                <h2 class="text-center mb-4 custom-text-shadow text-chocoarte">ContÃ¡ctanos</h2>
                 <form>
                     <div class="row">
                         <!-- Nombre -->
@@ -351,10 +302,10 @@
                             <label for="nombre" class="form-label">Nombre</label>
                             <input type="text" class="form-control shadow" id="nombre" placeholder="Tu nombre">
                         </div>
-                        <!-- Correo Electrónico -->
+                        <!-- Correo ElectrÃ³nico -->
                         <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label">Correo electrónico</label>
-                            <input type="email" class="form-control shadow" id="email" placeholder="Tu correo electrónico">
+                            <label for="email" class="form-label">Correo electrÃ³nico</label>
+                            <input type="email" class="form-control shadow" id="email" placeholder="Tu correo electrÃ³nico">
                         </div>
                     </div>
                     <!-- Mensaje -->
@@ -369,13 +320,15 @@
         </section>
 
         <hr>
-        <!-- Sección del video -->
+        <!-- SecciÃ³n del video -->
         <section class="text-white text-center py-5" >
             <div class="container">
-                <h2 class="text-center mb-4 custom-text-shadow text-chocoarte" >Así hacemos nuestras tartas</h2>
+                <h2 class="text-center mb-4 custom-text-shadow text-chocoarte" >AsÃ­ hacemos nuestras tartas</h2>
                 <div class="embed-responsive embed-responsive-16by9">
-                    <iframe width="250" height="444" class="embed-responsive-item" src="video/videoplayback.mp4"
-                            allowfullscreen></iframe>
+                    <video controls width="250" height="auto">
+                        <source src="video/videoplayback.mp4" type="video/mp4">
+                        Tu navegador no soporta la reproducciÃ³n de video
+                    </video>
                 </div>
             </div>
         </section>
@@ -383,7 +336,7 @@
         <footer class="text-center text-lg-start text-white">
             <section class="d-flex justify-content-center p-4 border-bottom">
                 <div class="me-5 d-none d-lg-block">
-                    <span class="m-8">Conéctate con nosotros en redes sociales:</span>
+                    <span class="m-8">ConÃ©ctate con nosotros en redes sociales:</span>
                 </div>
                 <div>
                     <a href="#" class="me-4 text-reset"><i class="fab fa-facebook-f"></i></a>
@@ -399,7 +352,7 @@
                         <h6 class="text-uppercase fw-bold mb-4">
                             <i class="fas fa-gem me-3"></i> ChocoArte
                         </h6>
-                        <p>Deléitate con la experiencia de chocolate más refinada y cremosa</p>
+                        <p>DelÃ©itate con la experiencia de chocolate mÃ¡s refinada y cremosa</p>
                     </div>
 
                     <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
@@ -411,16 +364,16 @@
                     </div>
 
                     <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
-                        <h6 class="text-uppercase fw-bold mb-4">Enlaces útiles</h6>
-                        <p><a href="#" class="text-reset">Términos y condiciones</a></p>
-                        <p><a href="#" class="text-reset">Política de privacidad</a></p>
+                        <h6 class="text-uppercase fw-bold mb-4">Enlaces Ãºtiles</h6>
+                        <p><a href="#" class="text-reset">TÃ©rminos y condiciones</a></p>
+                        <p><a href="#" class="text-reset">PolÃ­tica de privacidad</a></p>
                         <p><a href="#" class="text-reset">Ayuda</a></p>
                         <p><a href="#" class="text-reset">Contacto</a></p>
                     </div>
 
                     <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
                         <h6 class="text-uppercase fw-bold mb-4">Contacto</h6>
-                        <p><i class="fas fa-home me-3"></i> Sevilla, España</p>
+                        <p><i class="fas fa-home me-3"></i> Sevilla, EspaÃ±a</p>
                         <p><i class="fas fa-envelope me-3"></i> info@chocoarte.com</p>
                         <p><i class="fas fa-phone me-3"></i> +34 900 123 456</p>
                         <p><i class="fas fa-print me-3"></i> +34 900 123 457</p>
@@ -429,7 +382,7 @@
             </div>
 
             <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
-                © 2025 ChocoArte. Todos los derechos reservados.
+                Â© 2025 ChocoArte. Todos los derechos reservados.
             </div>
         </footer>
 

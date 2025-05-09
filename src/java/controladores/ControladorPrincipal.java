@@ -4,12 +4,16 @@
 package controladores;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.List;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import modelo.entidades.Producto;
+import modelo.servicio.ServicioProducto;
 
 /**
  *
@@ -29,7 +33,6 @@ public class ControladorPrincipal extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        getServletContext().getRequestDispatcher("/principal.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -44,7 +47,18 @@ public class ControladorPrincipal extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
+        ServicioProducto sp = new ServicioProducto(emf);
+
+        // Obtener la lista de productos
+        List<Producto> productos = sp.findProductoEntities();
+        request.setAttribute("productos", productos);
+
+        // Redirigir a la vista que muestra los productos
+        String vista = "/principal.jsp";
+        getServletContext().getRequestDispatcher(vista).forward(request, response);
+
+        emf.close();
     }
 
     /**

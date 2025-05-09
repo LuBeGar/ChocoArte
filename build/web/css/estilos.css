@@ -103,3 +103,13 @@ footer {
 .text-chocoarte {
     color: #8B4513; 
 }
+
+.error {
+    background-color: #e74c3c;
+    color: white;
+    padding: 15px;
+    margin-top: 20px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+}

@@ -33,6 +33,9 @@ public class Review implements Serializable {
     private String comentario;
 
     private String imagenes;
+    
+    @Column(nullable = false)
+    private int valoracion;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
@@ -61,6 +64,14 @@ public class Review implements Serializable {
 
     public void setImagenes(String imagenes) {
         this.imagenes = imagenes;
+    }
+
+    public int getValoracion() {
+        return valoracion;
+    }
+
+    public void setValoracion(int valoracion) {
+        this.valoracion = valoracion;
     }
 
     public Usuario getUsuario() {

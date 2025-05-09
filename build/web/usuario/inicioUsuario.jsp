@@ -3,7 +3,7 @@
     Created on : 20 abr 2025, 18:33:24
     Author     : Lu
 --%>
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -21,9 +21,59 @@
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm position-sticky" style="top: 0; z-index: 1050;">
             <div class="container">
-                <a class="navbar-brand" href="principal.jsp">
+                <!-- Logo como enlace directo -->
+                <a class="navbar-brand" href="index.html">
                     <img src="img/conejo.png" alt="ChocoArte" height="40">
                 </a>
+
+                <!-- Botón hamburguesa -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Contenido colapsable -->
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    <!-- Formulario de búsqueda -->
+                    <form class="d-flex mb-3 mb-lg-0 me-lg-3">
+                        <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Buscar">
+                        <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+
+                    <!-- Menú según estado del usuario -->
+                    <c:choose>
+                        <c:when test="${not empty sessionScope.usuario}">
+                            <!-- Usuario logueado -->
+                            <div class="dropdown mb-2 mb-lg-0">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                    Hola, ${sessionScope.usuario.nombre}
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <c:choose>
+                                        <c:when test="${sessionScope.usuario.tipo == 'admin'}">
+                                            <li><a class="dropdown-item" href="ControladorUsuario"><i class="fas fa-cogs me-1"></i> Administración</a></li>
+                                            <li><a class="dropdown-item" href="ControladorPedidosAdmin"><i class="fas fa-list me-1"></i> Todos los pedidos</a></li>
+                                            </c:when>
+                                            <c:otherwise>
+                                            <li><a class="dropdown-item" href="ControladorInicio"><i class="fas fa-user me-1"></i> Mi perfil</a></li>
+                                            <li><a class="dropdown-item" href="ControladorMisPedidos"><i class="fas fa-box me-1"></i> Mis pedidos</a></li>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="ControladorCerrarSesion"><i class="fas fa-sign-out-alt me-1"></i> Cerrar sesión</a></li>
+                                </ul>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <!-- Usuario no logueado -->
+                            <div class="d-flex flex-column flex-lg-row">
+                                <a href="ControladorLogin" class="btn btn-outline-primary mb-2 mb-lg-0 me-lg-2"><i class="fas fa-sign-in-alt me-1"></i> Iniciar sesión</a>
+                                <a href="ControladorRegistro" class="btn btn-outline-success mb-2 mb-lg-0"><i class="fas fa-user-plus me-1"></i> Registrarse</a>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
             </div>
         </nav>
 
@@ -52,11 +102,11 @@
 
                 <!-- Main Content -->
                 <div class="col-md-9 col-lg-10 px-5 p-4">
-                    <h1 class="mb-4 custom-text-shadow" style="color:#8B4513">Bienvenido, Juan Pérez</h1>
+                    <h1 class="mb-4 custom-text-shadow" style="color:#8B4513">Bienvenido, ${sessionScope.usuario.nombre}</h1>
 
                     <!-- Puntos -->
                     <h3 class="mt-5" id="puntos">Mis Puntos</h3>
-                    <p>Has acumulado un total de 120 puntos. ¡Sigue comprando para obtener más beneficios!</p>
+                    <p>Has acumulado un total de ${sessionScope.usuario.puntos}  puntos. ¡Sigue comprando para obtener más beneficios!</p>
 
                     <!-- Pedidos -->
                     <h3 class="mt-5" id="pedidos">Mis Pedidos</h3>

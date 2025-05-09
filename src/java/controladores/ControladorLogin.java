@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import modelo.entidades.Pedido;
 import modelo.entidades.Usuario;
 import modelo.servicio.ServicioUsuario;
 
@@ -32,7 +33,7 @@ public class ControladorLogin extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         getServletContext().getRequestDispatcher("/login.jsp").forward(request, response);
     }
@@ -66,22 +67,37 @@ protected void processRequest(HttpServletRequest request, HttpServletResponse re
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String error = "";
-        if(email == null || password == null || email.isEmpty() || password.isEmpty()){
+
+        // Verificación de datos vacíos
+        if (email == null || password == null || email.isEmpty() || password.isEmpty()) {
             error = "El email y la contraseña son obligatorios";
-        }else{
+        } else {
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
             ServicioUsuario su = new ServicioUsuario(emf);
             Usuario usu = su.validarUsuario(email, password);
             emf.close();
-            if(usu != null){
+
+            if (usu != null) {
+                // Si el usuario es válido, crear una nueva sesión
                 HttpSession sesion = request.getSession();
                 sesion.setAttribute("usuario", usu);
+
+                // Crear un nuevo pedido si no existe uno en la sesión
+                if (sesion.getAttribute("pedido") == null) {
+                    Pedido nuevoPedido = new Pedido();
+                    nuevoPedido.setUsuario(usu);  // Asociar el pedido al usuario
+                    sesion.setAttribute("pedido", nuevoPedido);  // Guardar el pedido en la sesión
+                }
+
+                // Redirigir al usuario al controlador principal
                 response.sendRedirect("ControladorPrincipal");
                 return;
-            }else{
-                error = "email o contraseña incorrectos";
+            } else {
+                error = "Email o contraseña incorrectos";
             }
         }
+
+        // Si hubo error, mostrar el mensaje en el login.jsp
         request.setAttribute("error", error);
         getServletContext().getRequestDispatcher("/login.jsp").forward(request, response);
     }

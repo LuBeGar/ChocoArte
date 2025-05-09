@@ -4,6 +4,7 @@
 package modelo.entidades;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -66,7 +67,7 @@ public class Usuario implements Serializable {
     private List<Review> review;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Pedido> pedidos;
+    private List<Pedido> pedidos = new ArrayList<>();
 
   
     public Long getId() {
@@ -180,6 +181,8 @@ public class Usuario implements Serializable {
     public void setPedidos(List<Pedido> pedidos) {
         this.pedidos = pedidos;
     }
+
+   
 
     @Override
     public int hashCode() {

@@ -5,6 +5,7 @@ package modelo.entidades;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -33,20 +34,27 @@ public class Pedido implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-     @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.DATE)
     private Date fecha;
 
     @Column(length = 30)
     private String estado;
 
+    private double precio;
+
+    @Column(length = 30)
+    private String entrega;
+    
+    @Column(length = 255)
+    private String direccionEntrega;
+
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
-    private List<Producto> productos;
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductoPersonalizado> productosPersonalizados = new ArrayList<>();
 
-    
     public Long getId() {
         return id;
     }
@@ -71,6 +79,30 @@ public class Pedido implements Serializable {
         this.estado = estado;
     }
 
+    public double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
+
+    public String getEntrega() {
+        return entrega;
+    }
+
+    public void setEntrega(String entrega) {
+        this.entrega = entrega;
+    }
+
+    public String getDireccionEntrega() {
+        return direccionEntrega;
+    }
+
+    public void setDireccionEntrega(String direccionEntrega) {
+        this.direccionEntrega = direccionEntrega;
+    }
+
     public Usuario getUsuario() {
         return usuario;
     }
@@ -79,12 +111,12 @@ public class Pedido implements Serializable {
         this.usuario = usuario;
     }
 
-    public List<Producto> getProductos() {
-        return productos;
+    public List<ProductoPersonalizado> getProductosPersonalizados() {
+        return productosPersonalizados;
     }
 
-    public void setProductos(List<Producto> productos) {
-        this.productos = productos;
+    public void setProductosPersonalizados(List<ProductoPersonalizado> productosPersonalizados) {
+        this.productosPersonalizados = productosPersonalizados;
     }
 
     @Override
@@ -113,6 +145,5 @@ public class Pedido implements Serializable {
     public String toString() {
         return "Pedido{" + "id=" + id + '}';
     }
-    
-    
+
 }

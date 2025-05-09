@@ -52,7 +52,7 @@ public class ControladorUsuario extends HttpServlet {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
         ServicioUsuario su = new ServicioUsuario(emf);
 
-        String vista = "/admin/administracion.jsp";
+        String vista = "/admin/gestionUsuarios.jsp";
         String error = "";
 
         String editar = request.getParameter("editar");
@@ -180,7 +180,7 @@ public class ControladorUsuario extends HttpServlet {
             request.setAttribute("error", error);
             request.setAttribute("usuarios", su.findUsuarioEntities()); 
 
-            getServletContext().getRequestDispatcher("/admin/administracion.jsp").forward(request, response);
+            getServletContext().getRequestDispatcher("/admin/gestionUsuarios.jsp").forward(request, response);
 
         } finally {
             if (emf != null) {
