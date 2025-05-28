@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import modelo.entidades.Producto;
-import static modelo.entidades.Producto_.imagen;
 import modelo.servicio.ServicioProducto;
 
 /**
@@ -56,7 +55,6 @@ public class ControladorProducto extends HttpServlet {
             throws ServletException, IOException {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
         ServicioProducto sp = new ServicioProducto(emf);
-        String vistaParam = request.getParameter("vista");
         String vista = "/admin/gestionProductos.jsp";
         String error = "";
 
@@ -64,11 +62,10 @@ public class ControladorProducto extends HttpServlet {
         String editar = request.getParameter("editar");
         String crear = request.getParameter("crear");
 
-        // Mostrar formulario de creación
+        // Crear producto
         if (crear != null) {
             vista = "/admin/crearProducto.jsp";
-        }
-        // Eliminar producto
+        } // Eliminar producto
         else if (eliminar != null && request.getParameter("id") != null) {
             try {
                 long id = Long.parseLong(request.getParameter("id"));
@@ -79,8 +76,7 @@ public class ControladorProducto extends HttpServlet {
             } catch (Exception e) {
                 error = "No se pudo eliminar el producto: " + e.getMessage();
             }
-        }
-        // Editar producto
+        } // Editar producto
         else if (editar != null && request.getParameter("id") != null) {
             try {
                 long id = Long.parseLong(request.getParameter("id"));
@@ -96,12 +92,9 @@ public class ControladorProducto extends HttpServlet {
             }
         }
 
-        // Obtener lista de productos
+        // Listar productos
         List<Producto> productos = sp.findProductoEntities();
         request.setAttribute("productos", productos);
-
-        // Redirigir a vista pública si se solicita
-       
 
         if (!error.isEmpty()) {
             request.setAttribute("error", error);
@@ -122,7 +115,7 @@ public class ControladorProducto extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
         ServicioProducto sp = new ServicioProducto(emf);
 
         String error = "";
@@ -133,6 +126,7 @@ EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU")
         List<String> imagen = new ArrayList<>();
 
         double precio = 0;
+        // Convertir precio a double
         try {
             precio = Double.parseDouble(precioStr);
         } catch (Exception e) {
@@ -147,8 +141,9 @@ EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU")
             String path = getServletContext().getRealPath("/imagenes");
             String rutaArchivo = path + "/" + nombreImagen;
 
-            try (InputStream contenido = imagenPart.getInputStream();
-                 FileOutputStream fos = new FileOutputStream(rutaArchivo)) {
+            // Guardar imagen
+            try (InputStream contenido = imagenPart.getInputStream(); 
+                    FileOutputStream fos = new FileOutputStream(rutaArchivo)) {
                 byte[] buffer = new byte[8192];
                 int bytesLeidos;
                 while ((bytesLeidos = contenido.read(buffer)) != -1) {
@@ -160,6 +155,7 @@ EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU")
             imagen.add(nombreImagen);
         }
 
+        // Para editar los datos del producto
         if (request.getParameter("editar") != null && idStr != null) {
             try {
                 long id = Long.parseLong(idStr);
@@ -179,6 +175,7 @@ EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU")
                 error = "Error al editar el producto: " + e.getMessage();
             }
 
+            // Para crear nuevo producto
         } else if (request.getParameter("crear") != null) {
             try {
                 Producto producto = new Producto();
@@ -192,6 +189,7 @@ EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU")
             }
         }
 
+        // Si hubo error se rellena el formulario y se muestra el error
         if (!error.isEmpty()) {
             request.setAttribute("error", error);
             request.setAttribute("tipo", tipo);
@@ -199,6 +197,7 @@ EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU")
             request.setAttribute("precio", precio);
             request.setAttribute("imagen", nombreImagen);
 
+            // Según la selección se muestran los errores en editar o en crear
             if (request.getParameter("editar") != null) {
                 getServletContext().getRequestDispatcher("/admin/editarProducto.jsp").forward(request, response);
             } else {

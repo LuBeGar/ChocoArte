@@ -4,10 +4,12 @@
 package modelo.servicio;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -32,114 +34,120 @@ public class ServicioPedido implements Serializable {
         return emf.createEntityManager();
     }
 
+    // Crear pedido
     public void create(Pedido pedido) {
-        EntityManager em = null;
+        EntityManager em = getEntityManager();
         try {
-            em = getEntityManager();
             em.getTransaction().begin();
 
-            // Relación con Usuario
-            Usuario usuario = pedido.getUsuario();
-            if (usuario != null) {
-                usuario = em.getReference(usuario.getClass(), usuario.getId());
+            // Asociar usuario al pedido
+            if (pedido.getUsuario() != null) {
+                Usuario usuario = em.getReference(Usuario.class, pedido.getUsuario().getId());
                 pedido.setUsuario(usuario);
             }
 
-            // Relación con productos
-            // Calcular el precio total del pedido sumando los precios de los productos
+            // Procesar productos personalizados y calcular precio
             double precioTotal = 0;
             if (pedido.getProductosPersonalizados() != null) {
                 for (ProductoPersonalizado producto : pedido.getProductosPersonalizados()) {
                     producto.setPedido(pedido);
-                    precioTotal += producto.getPrecio(); // Sumar el precio del producto al total
+                    precioTotal += producto.getPrecio();
                     em.persist(producto);
                 }
             }
 
-            // Establecer el precio total del pedido
             pedido.setPrecio(precioTotal);
             em.persist(pedido);
             em.getTransaction().commit();
         } finally {
-            if (em != null) {
-                em.close();
-            }
+            em.close();
         }
     }
 
+    // Editar pedido
     public void edit(Pedido pedido) throws NonexistentEntityException, Exception {
-        EntityManager em = null;
+        EntityManager em = getEntityManager();
         try {
-            em = getEntityManager();
             em.getTransaction().begin();
 
-            Pedido persistentPedido = em.find(Pedido.class, pedido.getId());
-            Usuario usuarioOld = persistentPedido.getUsuario();
-            Usuario usuarioNew = pedido.getUsuario();
-
-            // Actualizar relación con Usuario
-            if (usuarioNew != null) {
-                usuarioNew = em.getReference(usuarioNew.getClass(), usuarioNew.getId());
-                pedido.setUsuario(usuarioNew);
+            Pedido persistente = em.find(Pedido.class, pedido.getId());
+            if (persistente == null) {
+                throw new NonexistentEntityException("El pedido con ID " + pedido.getId() + " ya no existe");
             }
 
-            // Eliminar productos anteriores si ya no están
-            List<ProductoPersonalizado> oldProductos = persistentPedido.getProductosPersonalizados();
-            List<ProductoPersonalizado> newProductos = pedido.getProductosPersonalizados();
-            for (ProductoPersonalizado prod : oldProductos) {
-                if (!newProductos.contains(prod)) {
+            // Actualizar usuario
+            if (pedido.getUsuario() != null) {
+                Usuario nuevoUsuario = em.getReference(Usuario.class, pedido.getUsuario().getId());
+                pedido.setUsuario(nuevoUsuario);
+            }
+
+            // Eliminar productos que ya no están en la lista
+            List<ProductoPersonalizado> antiguos = persistente.getProductosPersonalizados();
+            List<ProductoPersonalizado> nuevos = pedido.getProductosPersonalizados();
+            for (ProductoPersonalizado prod : antiguos) {
+                if (!nuevos.contains(prod)) {
                     em.remove(em.contains(prod) ? prod : em.merge(prod));
                 }
             }
 
-            // Agregar o actualizar productos nuevos
-            for (ProductoPersonalizado producto : newProductos) {
+            // Asociar y guardar nuevos productos o editados
+            for (ProductoPersonalizado producto : nuevos) {
                 producto.setPedido(pedido);
                 em.merge(producto);
             }
 
-            pedido = em.merge(pedido);
+            em.merge(pedido);
             em.getTransaction().commit();
-        } catch (Exception ex) {
-            Long id = pedido.getId();
-            if (findPedido(id) == null) {
-                throw new NonexistentEntityException("El pedido con ID " + id + " ya no existe.");
-            }
-            throw ex;
         } finally {
-            if (em != null) {
-                em.close();
-            }
+            em.close();
         }
     }
 
+    // Eliminar pedido
     public void destroy(Long id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+
             Pedido pedido;
             try {
-                pedido = em.getReference(Pedido.class, id);
-                pedido.getId();
-            } catch (EntityNotFoundException enfe) {
-                throw new NonexistentEntityException("El pedido con ID " + id + " ya no existe.", enfe);
+                // Buscar pedido con sus productos personalizados
+                pedido = em.createQuery(
+                        "SELECT p FROM Pedido p LEFT JOIN FETCH p.productosPersonalizados WHERE p.id = :id",
+                        Pedido.class)
+                        .setParameter("id", id)
+                        .getSingleResult();
+            } catch (NoResultException e) {
+                throw new NonexistentEntityException("El pedido con ID " + id + " no existe.");
             }
 
-            // Eliminar productos asociados
-            for (ProductoPersonalizado producto : pedido.getProductosPersonalizados()) {
+            // Eliminar productos personalizados asociados al pedido
+            List<ProductoPersonalizado> productos = new ArrayList<>(pedido.getProductosPersonalizados());
+            for (ProductoPersonalizado producto : productos) {
+                producto.setPedido(null);
                 em.remove(em.contains(producto) ? producto : em.merge(producto));
             }
 
-            // Eliminar relación con usuario
+            // Eliminar productos el pedido
+            pedido.getProductosPersonalizados().clear();
+
+            // Eliminar relación con el usuario
             Usuario usuario = pedido.getUsuario();
             if (usuario != null) {
-                usuario = em.merge(usuario);
                 usuario.getPedidos().remove(pedido);
+                em.merge(usuario);
             }
 
-            em.remove(pedido);
+            // Eliminar el pedido
+            em.remove(em.contains(pedido) ? pedido : em.merge(pedido));
             em.getTransaction().commit();
+
+        } catch (Exception ex) {
+            if (em != null && em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw new NonexistentEntityException("Error al eliminar el pedido: " + ex.getMessage(), ex);
         } finally {
             if (em != null) {
                 em.close();
@@ -147,17 +155,21 @@ public class ServicioPedido implements Serializable {
         }
     }
 
+    // Obtener todos los pedidos sin paginación
     public List<Pedido> findPedidoEntities() {
         return findPedidoEntities(true, -1, -1);
     }
 
+    // Obtener pedidos con paginación
     public List<Pedido> findPedidoEntities(int maxResults, int firstResult) {
         return findPedidoEntities(false, maxResults, firstResult);
     }
 
+    // Obtener pedidos
     private List<Pedido> findPedidoEntities(boolean all, int maxResults, int firstResult) {
         EntityManager em = getEntityManager();
         try {
+            // Seleccionar todos los pedidos
             CriteriaQuery<Pedido> cq = em.getCriteriaBuilder().createQuery(Pedido.class);
             cq.select(cq.from(Pedido.class));
             Query q = em.createQuery(cq);
@@ -171,6 +183,7 @@ public class ServicioPedido implements Serializable {
         }
     }
 
+    // Buscar pedido por id
     public Pedido findPedido(Long id) {
         EntityManager em = getEntityManager();
         try {
@@ -180,6 +193,7 @@ public class ServicioPedido implements Serializable {
         }
     }
 
+    // Cantidad total de pedidos
     public int getPedidoCount() {
         EntityManager em = getEntityManager();
         try {
@@ -207,25 +221,23 @@ public class ServicioPedido implements Serializable {
     }
 
     // Marca un pedido como confirmado
-    public void confirmarPedido(Long id, String entrega, String direccion) {
-    EntityManager em = getEntityManager();
-    try {
-        em.getTransaction().begin();
-        Pedido pedido = em.find(Pedido.class, id);
-        if (pedido != null) {
-            pedido.setEstado("Confirmado");
-            pedido.setEntrega(entrega);
-            if ("domicilio".equalsIgnoreCase(entrega)) {
+    public Pedido confirmarPedido(Long id, String tipoEntrega, String direccion) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Pedido pedido = em.find(Pedido.class, id);
+            if (pedido != null) {
+                pedido.setEstado("Confirmado");
+                pedido.setEntrega(tipoEntrega);
                 pedido.setDireccionEntrega(direccion);
-            } else {
-                pedido.setDireccionEntrega(null); 
+                pedido.setFecha(new Date());
+                pedido = em.merge(pedido);
             }
-            em.merge(pedido);
+            em.getTransaction().commit();
+            return pedido;
+        } finally {
+            em.close();
         }
-        em.getTransaction().commit();
-    } finally {
-        em.close();
     }
-}
 
 }

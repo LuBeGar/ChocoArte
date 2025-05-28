@@ -3,12 +3,13 @@
     Created on : 22 abr 2025, 22:27:43
     Author     : Lu
 --%>
-<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html; charset=ISO-8859-15" pageEncoding="ISO-8859-15" %>
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Editar Usuario - ChocoArte</title>
 
@@ -26,7 +27,7 @@
                     <img src="img/conejo.png" alt="ChocoArte" height="40">
                 </a>
 
-                <!-- BotÃ³n hamburguesa -->
+                <!-- Botón hamburguesa -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -34,42 +35,39 @@
 
                 <!-- Contenido colapsable -->
                 <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                    <!-- Formulario de bÃºsqueda -->
-                    <form class="d-flex mb-3 mb-lg-0 me-lg-3">
-                        <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Buscar">
-                        <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
-                    </form>
 
-                    <!-- MenÃº segÃºn estado del usuario -->
+                    <!-- Menú según el estado del usuario -->
                     <c:choose>
                         <c:when test="${not empty sessionScope.usuario}">
-                            <!-- Usuario logueado -->
-                            <div class="dropdown mb-2 mb-lg-0">
+                            <!-- Si el usuario está logueado, muestra su nombre como dropdown -->
+                            <div class="dropdown mb-2 mb-lg-0 ms-lg-3">
                                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown"
                                         data-bs-toggle="dropdown" aria-expanded="false">
                                     Hola, ${sessionScope.usuario.nombre}
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <c:choose>
-                                        <c:when test="${sessionScope.usuario.tipo == 'admin'}">
-                                            <li><a class="dropdown-item" href="ControladorUsuario"><i class="fas fa-cogs me-1"></i> AdministraciÃ³n</a></li>
-                                            <li><a class="dropdown-item" href="ControladorPedidosAdmin"><i class="fas fa-list me-1"></i> Todos los pedidos</a></li>
+                                        <c:when test="${not empty sessionScope.usuario and sessionScope.usuario.tipo == 'admin'}">
+                                            <li><a class="dropdown-item" href="ControladorUsuario"><i class="fas fa-box me-1"></i>Menú de administración</a></li>
                                             </c:when>
                                             <c:otherwise>
-                                            <li><a class="dropdown-item" href="ControladorInicio"><i class="fas fa-user me-1"></i> Mi perfil</a></li>
-                                            <li><a class="dropdown-item" href="ControladorMisPedidos"><i class="fas fa-box me-1"></i> Mis pedidos</a></li>
+                                            <li><a class="dropdown-item" href="ControladorGestionPedidos"><i class="fas fa-user me-1"></i> Mi perfil</a></li>
+                                                <c:if test="${not empty pedidoEnCurso}">
+                                                <li><a class="dropdown-item" href="ControladorVerResumenPedido?pedidoId=${pedidoEnCurso.id}"><i class="fas fa-box me-1"></i> Mis pedidos</a></li>
+                                                </c:if>
                                             </c:otherwise>
                                         </c:choose>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="ControladorCerrarSesion"><i class="fas fa-sign-out-alt me-1"></i> Cerrar sesiÃ³n</a></li>
+                                    <li><a class="dropdown-item text-danger" href="ControladorCerrarSesion"><i class="fas fa-sign-out-alt me-1"></i> Cerrar sesión</a></li>
                                 </ul>
                             </div>
                         </c:when>
                         <c:otherwise>
-                            <!-- Usuario no logueado -->
-                            <div class="d-flex flex-column flex-lg-row">
-                                <a href="ControladorLogin" class="btn btn-outline-primary mb-2 mb-lg-0 me-lg-2"><i class="fas fa-sign-in-alt me-1"></i> Iniciar sesiÃ³n</a>
-                                <a href="ControladorRegistro" class="btn btn-outline-success mb-2 mb-lg-0"><i class="fas fa-user-plus me-1"></i> Registrarse</a>
+                            <!-- Si el usuario no está logueado, muestra los botones de login y registro -->
+                            <div class="d-flex flex-column flex-lg-row ">
+                                <a href="ControladorLogin" class="btn btn-outline-primary mb-2 mb-lg-0 ms-lg-3"><i class="fas fa-sign-in-alt me-1"></i> Iniciar sesión</a>
+                                <a href="ControladorRegistro" class="btn btn-outline-success mb-2 mb-lg-0 ms-lg-3 ">
+                                    <i class="fas fa-user-plus me-1"></i> Registrarse</a>
                             </div>
                         </c:otherwise>
                     </c:choose>
@@ -91,33 +89,33 @@
                         <input type="text" class="form-control" id="nombre" name="nombre" value="${nombre}" required>
                     </div>
 
-                    <!-- Correo ElectrÃ³nico -->
+                    <!-- Correo Electrónico -->
                     <div class="mb-3">
-                        <label for="email" class="form-label text-dark">Correo ElectrÃ³nico</label>
+                        <label for="email" class="form-label text-dark">Correo Electrónico</label>
                         <input type="email" class="form-control" id="email" name="email" value="${email}" required>
                     </div>
 
-                    <!-- ContraseÃ±a (opcional para cambiar) -->
+                    <!-- Contraseña -->
                     <div class="mb-3">
-                        <label for="password" class="form-label text-dark">Nueva ContraseÃ±a (dejar en blanco para no cambiar)</label>
+                        <label for="password" class="form-label text-dark">Nueva Contraseña (dejar en blanco para no cambiar)</label>
                         <input type="password" class="form-control" id="password" name="password">
                     </div>
 
-                    <!-- Confirmar ContraseÃ±a -->
+                    <!-- Confirmar Contraseña -->
                     <div class="mb-3">
-                        <label for="repetirPassword" class="form-label text-dark">Confirmar Nueva ContraseÃ±a</label>
+                        <label for="repetirPassword" class="form-label text-dark">Confirmar Nueva Contraseña</label>
                         <input type="password" class="form-control" id="repetirPassword" name="repetirPassword">
                     </div>
 
-                    <!-- TelÃ©fono -->
+                    <!-- Teléfono -->
                     <div class="mb-3">
-                        <label for="telefono" class="form-label text-dark">TelÃ©fono</label>
+                        <label for="telefono" class="form-label text-dark">Teléfono</label>
                         <input type="tel" class="form-control" id="telefono" name="telefono" value="${telefono}" required>
                     </div>
 
-                    <!-- DirecciÃ³n -->
+                    <!-- Dirección -->
                     <div class="mb-3">
-                        <label for="direccion" class="form-label text-dark">DirecciÃ³n</label>
+                        <label for="direccion" class="form-label text-dark">Dirección</label>
                         <input type="text" class="form-control" id="direccion" name="direccion" value="${direccion}" required>
                     </div>
 
@@ -127,9 +125,9 @@
                         <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" value="${fechaNacimiento}" required>
                     </div>
 
-                    <!-- GÃ©nero -->
+                    <!-- Género -->
                     <div class="mb-3">
-                        <label class="form-label text-dark">GÃ©nero</label><br>
+                        <label class="form-label text-dark">Género</label><br>
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="genero" id="masculino" value="masculino" ${genero == 'masculino' ? 'checked' : ''}>
                             <label class="form-check-label" for="masculino">Masculino</label>
@@ -199,7 +197,7 @@
                 </div>
             </section>
             <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
-                Â© 2025 ChocoArte. Todos los derechos reservados.
+                © 2025 ChocoArte. Todos los derechos reservados.
             </div>
         </footer>
 

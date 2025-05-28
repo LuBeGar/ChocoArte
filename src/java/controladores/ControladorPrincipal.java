@@ -59,6 +59,20 @@ public class ControladorPrincipal extends HttpServlet {
         getServletContext().getRequestDispatcher(vista).forward(request, response);
 
         emf.close();
+        
+        // Para mostrar los mensajes del ControladorContacto
+        String mensajeExito = (String) request.getSession().getAttribute("mensajeExito");
+        String error = (String) request.getSession().getAttribute("error");
+
+        if (mensajeExito != null) {
+            request.setAttribute("mensajeExito", mensajeExito);
+            request.getSession().removeAttribute("mensajeExito");
+        }
+        if (error != null) {
+            request.setAttribute("error", error);
+            request.getSession().removeAttribute("error");
+        }
+
     }
 
     /**

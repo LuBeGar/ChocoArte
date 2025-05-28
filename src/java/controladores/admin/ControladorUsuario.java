@@ -88,7 +88,7 @@ public class ControladorUsuario extends HttpServlet {
             }
         }
 
-        // Cargar usuarios para la vista de administración
+        // Listar usuarios para la vista de administración
         List<Usuario> usuarios = su.findUsuarioEntities();
         request.setAttribute("usuarios", usuarios);
 
@@ -132,7 +132,7 @@ public class ControladorUsuario extends HttpServlet {
             String error = "";
             SimpleDateFormat formatoFecha = new SimpleDateFormat("yyyy-MM-dd");
 
-            // Editar usuario existente
+            // Editar usuario 
             if (request.getParameter("editar") != null && idStr != null) {
                 try {
                     long id = Long.parseLong(idStr);
@@ -178,7 +178,7 @@ public class ControladorUsuario extends HttpServlet {
             }
 
             request.setAttribute("error", error);
-            request.setAttribute("usuarios", su.findUsuarioEntities()); 
+            request.setAttribute("usuarios", su.findUsuarioEntities());
 
             getServletContext().getRequestDispatcher("/admin/gestionUsuarios.jsp").forward(request, response);
 

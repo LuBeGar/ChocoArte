@@ -5,11 +5,11 @@
 --%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=ISO-8859-15" pageEncoding="ISO-8859-15" %>
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Productos - Admin ChocoArte</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -18,61 +18,45 @@
     </head>
     <body>
         <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm position-sticky" style="top: 0; z-index: 1050;">
-            <div class="container">
-                <!-- Logo como enlace directo -->
+        <nav class="navbar navbar-light bg-white shadow-sm position-sticky" style="top: 0; z-index: 1050;">
+            <div class="container d-flex justify-content-between align-items-center">
+                <!-- Logo -->
                 <a class="navbar-brand" href="index.html">
                     <img src="img/conejo.png" alt="ChocoArte" height="40">
                 </a>
 
-                <!-- BotÃ³n hamburguesa -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <!-- Contenido colapsable -->
-                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                    <!-- Formulario de bÃºsqueda -->
-                    <form class="d-flex mb-3 mb-lg-0 me-lg-3">
-                        <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Buscar">
-                        <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
-                    </form>
-
-                    <!-- MenÃº segÃºn estado del usuario -->
-                    <c:choose>
-                        <c:when test="${not empty sessionScope.usuario}">
-                            <!-- Usuario logueado -->
-                            <div class="dropdown mb-2 mb-lg-0">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                    Hola, ${sessionScope.usuario.nombre}
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <c:choose>
-                                        <c:when test="${sessionScope.usuario.tipo == 'admin'}">
-                                            <li><a class="dropdown-item" href="ControladorUsuario"><i class="fas fa-cogs me-1"></i> AdministraciÃ³n</a></li>
-                                            <li><a class="dropdown-item" href="ControladorPedidosAdmin"><i class="fas fa-list me-1"></i> Todos los pedidos</a></li>
-                                            </c:when>
-                                            <c:otherwise>
-                                            <li><a class="dropdown-item" href="ControladorInicio"><i class="fas fa-user me-1"></i> Mi perfil</a></li>
-                                            <li><a class="dropdown-item" href="ControladorMisPedidos"><i class="fas fa-box me-1"></i> Mis pedidos</a></li>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="ControladorCerrarSesion"><i class="fas fa-sign-out-alt me-1"></i> Cerrar sesiÃ³n</a></li>
-                                </ul>
-                            </div>
-                        </c:when>
-                        <c:otherwise>
-                            <!-- Usuario no logueado -->
-                            <div class="d-flex flex-column flex-lg-row">
-                                <a href="ControladorLogin" class="btn btn-outline-primary mb-2 mb-lg-0 me-lg-2"><i class="fas fa-sign-in-alt me-1"></i> Iniciar sesiÃ³n</a>
-                                <a href="ControladorRegistro" class="btn btn-outline-success mb-2 mb-lg-0"><i class="fas fa-user-plus me-1"></i> Registrarse</a>
-                            </div>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
+                <!-- Menú usuario alineado a la derecha en la misma línea -->
+                <c:choose>
+                    <c:when test="${not empty sessionScope.usuario}">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                Hola, ${sessionScope.usuario.nombre}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <c:choose>
+                                    <c:when test="${sessionScope.usuario.tipo == 'admin'}">
+                                        <li><a class="dropdown-item" href="ControladorUsuario"><i class="fas fa-box me-1"></i>Menú de administración</a></li>
+                                        </c:when>
+                                        <c:otherwise>
+                                        <li><a class="dropdown-item" href="ControladorGestionPedidos"><i class="fas fa-user me-1"></i> Mi perfil</a></li>
+                                            <c:if test="${not empty pedidoEnCurso}">
+                                            <li><a class="dropdown-item" href="ControladorVerResumenPedido?pedidoId=${pedidoEnCurso.id}"><i class="fas fa-box me-1"></i> Mis pedidos</a></li>
+                                            </c:if>
+                                        </c:otherwise>
+                                    </c:choose>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="ControladorCerrarSesion"><i class="fas fa-sign-out-alt me-1"></i> Cerrar sesión</a></li>
+                            </ul>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="d-flex gap-2">
+                            <a href="ControladorLogin" class="btn btn-outline-primary"><i class="fas fa-sign-in-alt me-1"></i> Iniciar sesión</a>
+                            <a href="ControladorRegistro" class="btn btn-outline-success"><i class="fas fa-user-plus me-1"></i> Registrarse</a>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </nav>
 
@@ -80,16 +64,17 @@
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 p-4 panel">
                 <div class="position-sticky" style="top: 90px; z-index: 1040;">
-                    <h4 class="mb-4">Panel de AdministraciÃ³n</h4>
+                    <h4 class="mb-4">Panel de Administración</h4>
                     <ul class="nav flex-column">
-                        <li class="nav-item"><a class="nav-link" href="#">GestiÃ³n de Productos</a></li>
-                        <li class="nav-item"><a class="nav-link" href="ControladorUsuario">GestiÃ³n de Usuarios</a></li>
-                        <li class="nav-item"><a class="nav-link" href="ControladorPedido">GestiÃ³n de Pedidos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Gestión de Productos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="ControladorUsuario">Gestión de Usuarios</a></li>
+                        <li class="nav-item"><a class="nav-link" href="ControladorPedido">Gestión de Pedidos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="ControladorVentas">Estadísticas de ventas</a></li>
                     </ul>
                 </div>
             </div>
             <div class="col-md-9 col-lg-10 px-5 p-4">
-                <h1 class=" mb-4 custom-text-shadow" style="color:#8B4513">Panel de AdministraciÃ³n</h1>
+                <h1 class=" mb-4 custom-text-shadow" style="color:#8B4513">Panel de Administración</h1>
                 <div class="row mt-4">
                     <!-- Cards Section -->
                     <div class="col-md-4 mb-3">
@@ -118,7 +103,7 @@
                             <th>#</th>
                             <th>Tipo</th>
                             <th>Precio</th>
-                            <th>DescripciÃ³n</th>
+                            <th>Descripción</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -127,20 +112,20 @@
                             <tr>
                                 <td>${producto.id}</td>
                                 <td>${producto.tipo}</td>
-                                <td>${producto.precio} â‚¬</td>
+                                <td>${producto.precio} ¤</td>
                                 <td>${producto.descripcion}</td>
                                 <td>
                                     <a href="ControladorProducto?id=${producto.id}&editar=true" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Editar</a>
-                                    <a href="ControladorProducto?id=${producto.id}&eliminar=true" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Eliminar</a>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminacionProducto(${producto.id})">
+                                        <i class="fas fa-trash-alt"></i> Eliminar
+                                    </button>
                                 </td>
                             </tr>
                         </c:forEach>
                     </tbody>
                 </table>
-
             </div>
         </div>
-
 
         <footer class="text-center text-lg-start">
             <section class="d-flex justify-content-center p-4 border-top">
@@ -152,9 +137,12 @@
                 </div>
             </section>
             <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
-                Â© 2025 ChocoArte. Todos los derechos reservados.
+                © 2025 ChocoArte. Todos los derechos reservados.
             </div>
         </footer>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="js/alertas.js"></script>
+
     </body>
 </html>

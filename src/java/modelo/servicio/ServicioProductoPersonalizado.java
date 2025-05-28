@@ -63,13 +63,13 @@ public class ServicioProductoPersonalizado implements Serializable {
 
             ProductoPersonalizado persistente = em.find(ProductoPersonalizado.class, personalizado.getId());
 
-            // Relación con producto
+            // Actualizar relación con producto
             if (personalizado.getProducto() != null) {
                 Producto productoRef = em.getReference(Producto.class, personalizado.getProducto().getId());
                 personalizado.setProducto(productoRef);
             }
 
-            // Relación con pedido
+            // Actualizar relación con pedido
             if (personalizado.getPedido() != null) {
                 Pedido pedidoRef = em.getReference(Pedido.class, personalizado.getPedido().getId());
                 personalizado.setPedido(pedidoRef);
@@ -89,23 +89,49 @@ public class ServicioProductoPersonalizado implements Serializable {
     }
 
     public void destroy(Long id) throws NonexistentEntityException {
-        EntityManager em = getEntityManager();
+    EntityManager em = getEntityManager();
+    try {
+        em.getTransaction().begin();
+        
+        ProductoPersonalizado productoPersonalizado;
         try {
-            em.getTransaction().begin();
-            ProductoPersonalizado personalizado;
-            try {
-                personalizado = em.getReference(ProductoPersonalizado.class, id);
-                personalizado.getId();
-            } catch (EntityNotFoundException enfe) {
-                throw new NonexistentEntityException("El producto personalizado con ID " + id + " ya no existe.", enfe);
+            // Obtener el producto con referencia al pedido
+            productoPersonalizado = em.createQuery(
+                "SELECT p FROM ProductoPersonalizado p LEFT JOIN FETCH p.pedido WHERE p.id = :id", 
+                ProductoPersonalizado.class)
+                .setParameter("id", id)
+                .getSingleResult();
+            
+            // Guardar el precio antes de eliminar
+            double precioProducto = productoPersonalizado.getPrecio();
+            Pedido pedidoAsociado = productoPersonalizado.getPedido();
+            
+            // Eliminar el producto
+            em.remove(productoPersonalizado);
+            
+            // Actualizar el precio del pedido asociado 
+            if (pedidoAsociado != null) {
+                pedidoAsociado.setPrecio(pedidoAsociado.getPrecio() - precioProducto);
+                em.merge(pedidoAsociado);
             }
-
-            em.remove(personalizado);
+            
             em.getTransaction().commit();
-        } finally {
-            em.close();
+            
+        } catch (EntityNotFoundException enfe) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw new NonexistentEntityException("El producto personalizado con ID " + id + " ya no existe", enfe);
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw new NonexistentEntityException("Error al eliminar el producto: " + e.getMessage(), e);
         }
+    } finally {
+        em.close();
     }
+}
 
     public List<ProductoPersonalizado> findProductoPersonalizadoEntities() {
         return findProductoPersonalizadoEntities(true, -1, -1);

@@ -4,14 +4,14 @@
     Author     : Lu
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=ISO-8859-15" pageEncoding="ISO-8859-15" %>
+
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Iniciar SesiÃ³n - ChocoArte</title>
-
+        <title>Iniciar Sesión - ChocoArte</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="css/estilos.css" type="text/css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -28,10 +28,10 @@
             </div>
         </nav>
 
-        <!-- Formulario de Inicio de SesiÃ³n -->
+        <!-- Formulario de Inicio de Sesión -->
         <div class="container my-5">
             <div class="p-4 rounded-3 shadow-sm" style="background-color: rgba(0, 0, 0, 0.05)">
-                <h4 class="text-center mb-4 custom-text-shadow" style="color:#8B4513">Iniciar SesiÃ³n</h4>
+                <h4 class="text-center mb-4 custom-text-shadow" style="color:#8B4513">Iniciar Sesión</h4>
                 <form id="formLogin" method="POST">
 
                     <!-- email -->
@@ -41,30 +41,25 @@
                         <span id="errorEmail" class="text-danger"></span>
                     </div>
 
-                    <!-- ContraseÃ±a -->
+                    <!-- Contraseña -->
                     <div class="mb-3">
-                        <label for="password" class="form-label text-dark">ContraseÃ±a</label>
+                        <label for="password" class="form-label text-dark">Contraseña</label>
                         <input type="password" class="form-control" id="password" name="password" required>
                         <span id="errorPass" class="text-danger"></span>
                     </div>
 
-                    <!-- Recordar sesiÃ³n -->
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="recordarSesion" name="recordarSesion">
-                        <label class="form-check-label text-dark" for="recordarSesion">Recordar sesiÃ³n</label>
-                    </div>
                     <c:if test="${not empty error}">
                         <div class="error">${error}</div>
                     </c:if>
 
-                    <!-- BotÃ³n de Iniciar SesiÃ³n -->
+                    <!-- Botón de Iniciar Sesión -->
                     <div class="text-center">
-                        <input type="submit" value="Iniciar SesiÃ³n" class="btn btn-gold w-100">
+                        <input type="submit" value="Iniciar Sesión" class="btn btn-gold w-100">
                     </div>
 
                     <!-- Enlace a Registro -->
                     <div class="mt-3 text-center">
-                        <p>Â¿No tienes una cuenta? <a href="ControladorRegistro">RegÃ­strate aquÃ­</a></p>
+                        <p>¿No tienes una cuenta? <a href="ControladorRegistro">Regístrate aquí</a></p>
                     </div>
                 </form>
             </div>
@@ -81,7 +76,7 @@
                 </div>
             </section>
             <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
-                Â© 2025 ChocoArte. Todos los derechos reservados.
+                © 2025 ChocoArte. Todos los derechos reservados.
             </div>
         </footer>
 

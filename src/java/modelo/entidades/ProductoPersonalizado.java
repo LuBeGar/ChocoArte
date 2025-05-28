@@ -5,6 +5,7 @@ package modelo.entidades;
 
 import java.io.Serializable;
 import java.util.Objects;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -19,9 +21,9 @@ import javax.persistence.ManyToOne;
  */
 @Entity
 public class ProductoPersonalizado implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -34,9 +36,11 @@ public class ProductoPersonalizado implements Serializable {
 
     @Column(length = 255)
     private String descripcion;
-    
+
     private double precio;
     
+    private String imagen;
+
     @ManyToOne
     @JoinColumn(name = "producto_id")
     private Producto producto;
@@ -44,6 +48,9 @@ public class ProductoPersonalizado implements Serializable {
     @ManyToOne
     @JoinColumn(name = "pedido_id")
     private Pedido pedido;
+
+    @OneToOne(mappedBy = "productoPersonalizado", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Review review;
 
     public Long getId() {
         return id;
@@ -85,6 +92,14 @@ public class ProductoPersonalizado implements Serializable {
         this.precio = precio;
     }
 
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
+
     public Producto getProducto() {
         return producto;
     }
@@ -99,6 +114,14 @@ public class ProductoPersonalizado implements Serializable {
 
     public void setPedido(Pedido pedido) {
         this.pedido = pedido;
+    }
+
+    public Review getReview() {
+        return review;
+    }
+
+    public void setReview(Review review) {
+        this.review = review;
     }
 
     @Override
@@ -127,8 +150,5 @@ public class ProductoPersonalizado implements Serializable {
     public String toString() {
         return "ProductoPersonalizado{" + "id=" + id + '}';
     }
-    
-    
+
 }
-
-

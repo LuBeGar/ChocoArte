@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import modelo.entidades.Producto;
 import modelo.servicio.exceptions.NonexistentEntityException;
 
 /**
@@ -130,4 +131,16 @@ public class ServicioReview implements Serializable {
             em.close();
         }
     }
+// Obtener la lista de reviews asociadas a un producto 
+    public List<Review> obtenerReviewsPorProducto(Producto producto) {
+        EntityManager em = emf.createEntityManager();
+        List<Review> reviews = em.createQuery(
+                "SELECT r FROM Review r WHERE r.productoPersonalizado.producto = :producto ORDER BY r.productoPersonalizado.id DESC",
+                Review.class)
+                .setParameter("producto", producto)
+                .getResultList();
+        em.close();
+        return reviews;
+    }
+
 }

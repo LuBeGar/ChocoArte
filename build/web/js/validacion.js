@@ -172,26 +172,52 @@ function validarTerminos() {
     }
 }
 
-
-// Mostrar y aceptar términos y condiciones
-const leerTerminos = document.getElementById("leerTerminos");
-const cerrarTerminos = document.getElementById("cerrarTerminos");
-
-// Mostrar modal de términos y condiciones
-leerTerminos.addEventListener('click', (e) => {
+document.getElementById("leerTerminos").addEventListener("click", function (e) {
     e.preventDefault();
-    // Muestra el modal de términos y condiciones
-    modalTerminos.showModal();
+    Swal.fire({
+        title: 'Términos y Condiciones',
+        html: `<div style="text-align:left; max-height:300px; overflow-y:auto; padding: 0 10px;">
+
+    <p>Al realizar un pedido con <strong>ChocoArte</strong>, el cliente acepta los siguientes Términos y Condiciones. Es responsabilidad del cliente leer y entender este documento antes de confirmar una compra.</p>
+
+    <h4>1. Productos Personalizados</h4>
+    <ul>
+        <li>Todas nuestras tartas son hechas a mano y personalizadas según los requisitos proporcionados por el cliente.</li>
+        <li>El diseño final puede variar ligeramente.</li>
+        <li>En caso de alergias o restricciones alimentarias, el cliente debe informarnos al realizar el pedido. En caso contrario, no nos haremos responsables por reacciones alérgicas.</li>
+        <li>Todos los pedidos deben realizarse con al menos <strong>10</strong> días de antelación.</li>
+    </ul>
+
+    <h4>2. Cancelaciones y Reembolsos</h4>
+    <ul>
+        <li>No se aceptan devoluciones por productos personalizados ya entregados.</li>
+        <li>En caso de error por parte de la empresa, se ofrecerá una solución razonable (reembolso parcial o repetición del producto).</li>
+    </ul>
+
+    <h4>3. Entregas y Recogidas</h4>
+    <ul>
+        <li>No nos responsabilizamos por retrasos debido a factores externos (clima, tráfico, etc.).</li>
+        <li>Una vez entregado el producto o recogido por el cliente, no nos responsabilizamos por daños causados por manipulación incorrecta o transporte.</li>
+    </ul>
+
+    <h4>4. Derechos de Imagen</h4>
+    <p>Podemos tomar fotografías de los productos realizados para su uso en nuestras redes sociales, sitio web u otros fines publicitarios. </p>
+
+    <h4>5. Contacto</h4>
+    <p>Para cualquier duda, sugerencia o reclamo, puedes contactarnos en:</p>
+    <ul>
+        <li><strong>Email:</strong> info@chocoarte.com</a></li>
+        <li><strong>Teléfono:</strong> +34 900 123 456</li>
+    </ul>
+               </div>`,
+        icon: 'info',
+        confirmButtonText: 'Cerrar',
+        width: '600px'
+    });
 });
 
-// Cerrar modal
-cerrarTerminos.addEventListener('click', () => {
-    modalTerminos.close(); // Cierra el modal de términos y condiciones
-});
-
-// Event listener para el submit
 var formulario = document.getElementById("formRegistro");
-formulario.addEventListener('submit', (event) => {
+formulario.addEventListener('submit', function (event) {
     event.preventDefault();
 
     errores = [];
@@ -207,9 +233,17 @@ formulario.addEventListener('submit', (event) => {
     validarTerminos();
 
     if (errores.length > 0) {
-        alert("Errores en el formulario:\n" + errores.join("\n"));
+        Swal.fire({
+            icon: 'error',
+            title: 'Errores en el formulario',
+            html: errores.map(e => `<p>${e}</p>`).join(''),
+            confirmButtonText: 'Revisar'
+        });
     } else {
-        alert("Formulario enviado con éxito");
-        formulario.submit();
+        Swal.fire({
+            icon: 'success',
+            title: 'Formulario enviado con éxito',
+            confirmButtonText: 'Aceptar'
+        }).then(() => formulario.submit());
     }
 });

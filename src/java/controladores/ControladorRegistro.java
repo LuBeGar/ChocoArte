@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import modelo.entidades.Usuario;
 import modelo.servicio.ServicioUsuario;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  *
@@ -49,18 +50,7 @@ public class ControladorRegistro extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
-        ServicioUsuario su = new ServicioUsuario(emf);
-        String vista = "/registro.jsp";  
-
-        // Listar usuarios 
-        if (request.getParameter("crear") == null) {
-            List<Usuario> usuarios = su.findUsuarioEntities();
-            request.setAttribute("usuarios", usuarios);
-        }
-
-        emf.close();
-        getServletContext().getRequestDispatcher(vista).forward(request, response);
+        getServletContext().getRequestDispatcher("/registro.jsp").forward(request, response);
     }
 
     /**
@@ -74,7 +64,6 @@ public class ControladorRegistro extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         String nombre = request.getParameter("nombre");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
@@ -92,6 +81,7 @@ public class ControladorRegistro extends HttpServlet {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
         ServicioUsuario su = new ServicioUsuario(emf);
 
+        // Validaciones básicas
         if (nombre == null || nombre.trim().isEmpty()) {
             error = "El nombre de usuario es obligatorio";
         } else if (email == null || email.trim().isEmpty()) {
@@ -116,19 +106,28 @@ public class ControladorRegistro extends HttpServlet {
             error = "Debe aceptar los términos y condiciones";
         }
 
+        // Validar si ya existe un usuario con el mismo email
         if (error.isEmpty()) {
+            Usuario usuarioExistente = su.findUsuarioByEmail(email);
+            if (usuarioExistente != null) {
+                error = "Ya existe un usuario registrado con ese email";
+            }
+        }
 
+        // Si no hay errores se crea el nuevo usuario
+        if (error.isEmpty()) {
             Usuario usuario = new Usuario();
             usuario.setNombre(nombre);
             usuario.setEmail(email);
-            usuario.setPassword(password);
+            // Encriptar contraseña
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+            usuario.setPassword(hashedPassword);
             usuario.setTelefono(telefono);
             usuario.setDireccion(direccion);
             usuario.setGenero(genero);
             usuario.setSaborFavorito(sabor);
             usuario.setComentarios(comentarios);
             usuario.setTipo("normal");
-            usuario.setPuntos(0);
 
             try {
                 usuario.setFechaNacimiento(new SimpleDateFormat("yyyy-MM-dd").parse(fechaNacimiento));
@@ -136,28 +135,24 @@ public class ControladorRegistro extends HttpServlet {
                 error = "La fecha de nacimiento no es válida";
             }
 
-            try {
-                su.create(usuario);
-                emf.close();
-
-                // Obtener la página anterior y redirigir
-                String referer = request.getHeader("Referer");
-                if (referer != null && !referer.isEmpty()) {
-                    response.sendRedirect(referer);
-                } else {
-                    response.sendRedirect("ControladorInicio");
-                }
-                return;
-            } catch (Exception e) {
-                error = "Error al registrar el usuario";
-                if (e.getMessage().contains("Duplicate")) {
-                    error = "Ya existe un usuario con ese correo o nombre de usuario";
+            if (error.isEmpty()) {
+                try {
+                    su.create(usuario);
+                    emf.close();
+                    response.sendRedirect("ControladorPrincipal");
+                    return;
+                    
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    error = "Error al registrar el usuario: " + e.getMessage();
+                    if (e.getMessage().contains("Duplicate")) {
+                        error = "Ya existe un usuario con ese correo";
+                    }
                 }
             }
-
         }
 
-        // Volver a mostrar el formulario con datos y error
+        // Si hay un error, mostrar el formulario con los datos y mensaje de error
         request.setAttribute("error", error);
         request.setAttribute("nombre", nombre);
         request.setAttribute("email", email);

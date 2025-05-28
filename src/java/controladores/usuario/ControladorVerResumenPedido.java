@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import modelo.entidades.Pedido;
 import modelo.servicio.ServicioPedido;
+import modelo.servicio.ServicioProductoPersonalizado;
 
 /**
  *
@@ -47,36 +48,37 @@ public class ControladorVerResumenPedido extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Obtener el ID del pedido desde los parámetros de la solicitud
         String pedidoIdStr = request.getParameter("pedidoId");
+        String productoPersonalizadoIdStr = request.getParameter("productoPersonalizadoId");
 
-        // Validar que se haya proporcionado un ID
         if (pedidoIdStr == null) {
             response.sendRedirect("index.html");
             return;
         }
 
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
+
         try {
             long pedidoId = Long.parseLong(pedidoIdStr);
+            ServicioPedido servicioPedido = new ServicioPedido(emf);
+            ServicioProductoPersonalizado servicioPP = new ServicioProductoPersonalizado(emf);
 
-            // Crear el EntityManagerFactory (puedes mejorar esto centralizándolo en la aplicación)
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
-            ServicioPedido servicio = new ServicioPedido(emf);
+            // Si hay un productoPersonalizadoId, eliminar el producto personalizado
+            if (productoPersonalizadoIdStr != null && !productoPersonalizadoIdStr.isEmpty()) {
+                long productoPersonalizadoId = Long.parseLong(productoPersonalizadoIdStr);
+                servicioPP.destroy(productoPersonalizadoId);
+            }
 
-            // Utilizar el nuevo método del servicio para obtener el pedido con sus productos personalizados
-            Pedido pedido = servicio.findPedidoConProductosPersonalizados(pedidoId);
-
-            // Cerrar el EntityManagerFactory
-            emf.close();
-
-            // Enviar el pedido como atributo a la vista
+            // Mostrar el resumen del pedido
+            Pedido pedido = servicioPedido.findPedidoConProductosPersonalizados(pedidoId);
             request.setAttribute("pedido", pedido);
             request.getRequestDispatcher("/usuario/resumenPedido.jsp").forward(request, response);
 
         } catch (Exception e) {
-            // En caso de error, redirigir al inicio
             e.printStackTrace();
             response.sendRedirect("index.html");
+        } finally {
+            emf.close();
         }
     }
 

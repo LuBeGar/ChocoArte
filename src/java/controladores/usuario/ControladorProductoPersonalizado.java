@@ -3,17 +3,22 @@
  */
 package controladores.usuario;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 import modelo.entidades.Pedido;
 import modelo.entidades.Producto;
 import modelo.entidades.ProductoPersonalizado;
@@ -27,6 +32,7 @@ import modelo.servicio.ServicioProductoPersonalizado;
  * @author Lu
  */
 @WebServlet(name = "ControladorProductoPersonalizado", urlPatterns = {"/ControladorProductoPersonalizado"})
+@MultipartConfig(maxFileSize = 1000000)
 public class ControladorProductoPersonalizado extends HttpServlet {
 
     /**
@@ -55,16 +61,8 @@ public class ControladorProductoPersonalizado extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         // Se obtiene el usuario de la sesión
+        // Se obtiene el usuario de la sesión
         HttpSession session = request.getSession();
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
-
-        // Si no hay usuario en sesión, se redirige al login
-        if (usuario == null) {
-            response.sendRedirect("ControladorLogin");
-            return;
-        }
-
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
         ServicioProducto sp = new ServicioProducto(emf);
 
@@ -72,7 +70,6 @@ public class ControladorProductoPersonalizado extends HttpServlet {
         String tipoProducto = request.getParameter("tipo");
 
         try {
-            // Se convierte el ID de producto a long
             long idProducto = Long.parseLong(idProductoStr);
             Producto productoBase = sp.findProducto(idProducto);
 
@@ -85,7 +82,6 @@ public class ControladorProductoPersonalizado extends HttpServlet {
             // Se obtiene el pedido actual en curso desde la sesión
             Pedido pedidoEnCurso = (Pedido) session.getAttribute("pedidoEnCurso");
 
-            // Se establecen atributos para mostrar en el JSP
             request.setAttribute("productoBase", productoBase);
             request.setAttribute("tipoProducto", tipoProducto);
             request.setAttribute("pedido", pedidoEnCurso);
@@ -93,7 +89,7 @@ public class ControladorProductoPersonalizado extends HttpServlet {
             // Se redirige al formulario de personalización
             getServletContext().getRequestDispatcher("/usuario/personalizarProducto.jsp").forward(request, response);
 
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             request.setAttribute("error", "ID de producto inválido");
         } finally {
             emf.close();
@@ -111,37 +107,76 @@ public class ControladorProductoPersonalizado extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         // Se obtiene el usuario desde la sesión
+        // Se obtiene el usuario desde la sesión
         HttpSession session = request.getSession();
         Usuario usuario = (Usuario) session.getAttribute("usuario");
-
-        // Si no hay usuario, redirige al login
-        if (usuario == null) {
-            response.sendRedirect("ControladorLogin");
-            return;
-        }
-
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
 
         try {
-            // Parámetros recibidos del formulario
+            Pedido pedidoEnCurso = (Pedido) session.getAttribute("pedidoEnCurso");
+
+            // Si hay pedido en curso, refrescarlo desde la bbdd
+            ServicioPedido sPedido = new ServicioPedido(emf);
+            if (pedidoEnCurso != null) {
+                pedidoEnCurso = sPedido.findPedidoConProductosPersonalizados(pedidoEnCurso.getId());
+
+                // Si el pedido ya está confirmado, se quita del en curso
+                if ("Confirmado".equals(pedidoEnCurso.getEstado())) {
+                    pedidoEnCurso = null;
+                    session.removeAttribute("pedidoEnCurso");
+                }
+            }
+
+            // Obtener parámetros del formulario
             String idProductoStr = request.getParameter("idProducto");
             String forma = request.getParameter("forma");
             String alergenos = request.getParameter("alergenos");
             String otrosAlergenos = request.getParameter("otrosAlergenos");
             String descripcionPersonalizada = request.getParameter("descripcionPersonalizada");
             String accion = request.getParameter("accion");
+            List<String> imagen = new ArrayList<>();
 
-            // Descripción de alérgenos
+            // Si los alérgenos son otros se guarda con lo que escriba en el campo
             String alergenosCompletos = "otros".equals(alergenos)
                     ? "Otros: " + otrosAlergenos
                     : alergenos;
 
+            String nombreImagen = null;
+            Part imagenPart = request.getPart("imagen");
+            if (imagenPart != null && imagenPart.getSize() > 0) {
+                nombreImagen = imagenPart.getSubmittedFileName();
+                String path = getServletContext().getRealPath("/imagenes");
+                String rutaArchivo = path + "/" + nombreImagen;
+
+                try (InputStream contenido = imagenPart.getInputStream(); FileOutputStream fos = new FileOutputStream(rutaArchivo)) {
+                    byte[] buffer = new byte[8192];
+                    int bytesLeidos;
+                    while ((bytesLeidos = contenido.read(buffer)) != -1) {
+                        fos.write(buffer, 0, bytesLeidos);
+                    }
+                } catch (IOException e) {
+                    String error = "Error al guardar la imagen: " + e.getMessage();
+                }
+                imagen.add(nombreImagen);
+            }
+            // Validar que todos los campos requeridos estén presentes
+            if (forma == null || forma.trim().isEmpty()
+                    || alergenos == null || alergenos.trim().isEmpty()
+                    || ("otros".equals(alergenos) && (otrosAlergenos == null || otrosAlergenos.trim().isEmpty()))
+                    || descripcionPersonalizada == null || descripcionPersonalizada.trim().isEmpty()) {
+
+                request.setAttribute("error", "Todos los campos requeridos deben estar completos");
+                request.setAttribute("idProducto", request.getParameter("idProducto"));
+                request.setAttribute("tipoProducto", request.getParameter("tipoProducto"));
+
+                // Reenviar al formulario con los datos cargados para que el usuario corrija
+                getServletContext().getRequestDispatcher("/usuario/personalizarProducto.jsp").forward(request, response);
+                return;
+            }
+
             ServicioProducto sp = new ServicioProducto(emf);
-            ServicioPedido sPedido = new ServicioPedido(emf);
             ServicioProductoPersonalizado spp = new ServicioProductoPersonalizado(emf);
 
-            // Se busca el producto base
             long idProducto = Long.parseLong(idProductoStr);
             Producto productoBase = sp.findProducto(idProducto);
 
@@ -150,9 +185,7 @@ public class ControladorProductoPersonalizado extends HttpServlet {
                 return;
             }
 
-            // Se recupera o inicializa el pedido en curso
-            Pedido pedidoEnCurso = (Pedido) session.getAttribute("pedidoEnCurso");
-
+            // Crear nuevo pedido solo si no hay uno válido
             if (pedidoEnCurso == null) {
                 pedidoEnCurso = new Pedido();
                 pedidoEnCurso.setUsuario(usuario);
@@ -160,43 +193,36 @@ public class ControladorProductoPersonalizado extends HttpServlet {
                 pedidoEnCurso.setEstado("En proceso");
                 pedidoEnCurso.setPrecio(0.0);
 
-                // Creamos el pedido nuevo en la BD
                 sPedido.create(pedidoEnCurso);
                 session.setAttribute("pedidoEnCurso", pedidoEnCurso);
             }
 
-            // Creamos el producto personalizado
+            // Crear producto personalizado
             ProductoPersonalizado productoPersonalizado = new ProductoPersonalizado();
             productoPersonalizado.setForma(forma);
             productoPersonalizado.setAlergenos(alergenosCompletos);
             productoPersonalizado.setDescripcion(descripcionPersonalizada);
             productoPersonalizado.setPrecio(productoBase.getPrecio());
             productoPersonalizado.setProducto(productoBase);
+            productoPersonalizado.setImagen(nombreImagen != null ? nombreImagen : "");
             productoPersonalizado.setPedido(pedidoEnCurso);
 
-            // Guardamos en la BD
+            // Guardar producto y actualizar pedido
             spp.create(productoPersonalizado);
 
-            // Añadimos a la lista de productos personalizados del pedido
+            // Añadir producto personalizado a la lista del pedido
             if (pedidoEnCurso.getProductosPersonalizados() == null) {
                 pedidoEnCurso.setProductosPersonalizados(new ArrayList<>());
             }
             pedidoEnCurso.getProductosPersonalizados().add(productoPersonalizado);
-            sPedido.edit(pedidoEnCurso);
 
-            // Actualizamos el precio del pedido
+            // Actualizar precio total del pedido
             pedidoEnCurso.setPrecio(pedidoEnCurso.getPrecio() + productoBase.getPrecio());
             sPedido.edit(pedidoEnCurso);
 
-            // Si el usuario decide finalizar el pedido
             if ("finalizar".equals(accion)) {
-                pedidoEnCurso.setEstado("Completado");
-                sPedido.edit(pedidoEnCurso);
-                session.removeAttribute("pedidoEnCurso");
-
                 response.sendRedirect("ControladorVerResumenPedido?pedidoId=" + pedidoEnCurso.getId());
             } else {
-                // Si solo añadió el producto, lo llevamos al inicio
                 response.sendRedirect("ControladorPrincipal");
             }
 
@@ -207,7 +233,6 @@ public class ControladorProductoPersonalizado extends HttpServlet {
             emf.close();
         }
     }
-
 
     /**
      * Returns a short description of the servlet.

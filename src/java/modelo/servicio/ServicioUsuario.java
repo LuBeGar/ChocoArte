@@ -16,11 +16,12 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import modelo.servicio.exceptions.NonexistentEntityException;
+import org.mindrot.jbcrypt.BCrypt;
+
 /**
  *
  * @author Lu
  */
-
 public class ServicioUsuario implements Serializable {
 
     public ServicioUsuario(EntityManagerFactory emf) {
@@ -34,9 +35,11 @@ public class ServicioUsuario implements Serializable {
     }
 
     public void create(Usuario usuario) {
+        // Si la lista de pedidos es null, se inicializa como lista vacía
         if (usuario.getPedidos() == null) {
             usuario.setPedidos(new ArrayList<>());
         }
+        // Si la lista de reviews es null, se inicializa como lista vacía
         if (usuario.getReview() == null) {
             usuario.setReview(new ArrayList<>());
         }
@@ -62,6 +65,7 @@ public class ServicioUsuario implements Serializable {
 
             em.persist(usuario);
 
+            // Para cada pedido del usuario, actualizar la referencia al usuario
             for (Pedido pedido : usuario.getPedidos()) {
                 Usuario oldUsuario = pedido.getUsuario();
                 pedido.setUsuario(usuario);
@@ -71,7 +75,7 @@ public class ServicioUsuario implements Serializable {
                     em.merge(oldUsuario);
                 }
             }
-
+            // Lo mismo para las reviews del usuario
             for (Review review : usuario.getReview()) {
                 Usuario oldUsuario = review.getUsuario();
                 review.setUsuario(usuario);
@@ -96,12 +100,14 @@ public class ServicioUsuario implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
 
+            // Comparar listas
             Usuario persistentUsuario = em.find(Usuario.class, usuario.getId());
             List<Pedido> pedidosOld = persistentUsuario.getPedidos();
             List<Pedido> pedidosNew = usuario.getPedidos();
             List<Review> reviewsOld = persistentUsuario.getReview();
             List<Review> reviewsNew = usuario.getReview();
 
+            // Adjuntar las nuevas listas de pedidos
             List<Pedido> attachedPedidosNew = new ArrayList<>();
             for (Pedido pedido : pedidosNew) {
                 pedido = em.getReference(pedido.getClass(), pedido.getId());
@@ -110,6 +116,7 @@ public class ServicioUsuario implements Serializable {
             pedidosNew = attachedPedidosNew;
             usuario.setPedidos(pedidosNew);
 
+            // Adjuntar las nuevas listas de reviews
             List<Review> attachedReviewsNew = new ArrayList<>();
             for (Review review : reviewsNew) {
                 review = em.getReference(review.getClass(), review.getId());
@@ -118,8 +125,10 @@ public class ServicioUsuario implements Serializable {
             reviewsNew = attachedReviewsNew;
             usuario.setReview(reviewsNew);
 
+            // Actualizar el usuario con las nuevas listas
             usuario = em.merge(usuario);
 
+            // Quitar la referencia a usuario de pedidos que ya no pertenecen a este usuario
             for (Pedido pedido : pedidosOld) {
                 if (!pedidosNew.contains(pedido)) {
                     pedido.setUsuario(null);
@@ -127,6 +136,7 @@ public class ServicioUsuario implements Serializable {
                 }
             }
 
+            // Para nuevos pedidos, asignar el usuario y actualizar pedidos antiguos
             for (Pedido pedido : pedidosNew) {
                 if (!pedidosOld.contains(pedido)) {
                     Usuario oldUsuario = pedido.getUsuario();
@@ -139,6 +149,7 @@ public class ServicioUsuario implements Serializable {
                 }
             }
 
+            // Quitar la referencia a usuario de reviews que ya no pertenecen a este usuario
             for (Review review : reviewsOld) {
                 if (!reviewsNew.contains(review)) {
                     review.setUsuario(null);
@@ -146,6 +157,7 @@ public class ServicioUsuario implements Serializable {
                 }
             }
 
+            // Para nuevas reviews, asignar el usuario y actualizar reviews antiguas
             for (Review review : reviewsNew) {
                 if (!reviewsOld.contains(review)) {
                     Usuario oldUsuario = review.getUsuario();
@@ -186,17 +198,8 @@ public class ServicioUsuario implements Serializable {
                 throw new NonexistentEntityException("El usuario con ID " + id + " no existe.", enfe);
             }
 
-            for (Pedido pedido : usuario.getPedidos()) {
-                pedido.setUsuario(null);
-                em.merge(pedido);
-            }
-
-            for (Review review : usuario.getReview()) {
-                review.setUsuario(null);
-                em.merge(review);
-            }
-
             em.remove(usuario);
+
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -251,13 +254,47 @@ public class ServicioUsuario implements Serializable {
         }
     }
 
-    public Usuario validarUsuario(String email, String password) {
-        List<Usuario> usuarios = findUsuarioEntities();
-        for (Usuario u : usuarios) {
-            if (u.getEmail().equals(email) && u.getPassword().equals(password)) {
-                return u;
+    // Validar usuario por email y contraseña
+    public Usuario validarUsuario(String email, String passwordIngresada) {
+        EntityManager em = getEntityManager();
+        try {
+            // Buscar el usuario por email
+            Query query = em.createQuery("SELECT u FROM Usuario u WHERE u.email = :email");
+            query.setParameter("email", email);
+
+            List<Usuario> resultados = query.getResultList();
+            if (resultados.isEmpty()) {
+                return null; // No existe usuario con ese email
             }
+
+            Usuario usuario = resultados.get(0);
+            String hashAlmacenado = usuario.getPassword();
+
+            // Verificar la contraseña ingresada 
+            if (BCrypt.checkpw(passwordIngresada, hashAlmacenado)) {
+                return usuario;
+            } else {
+                return null; // Contraseña incorrecta
+            }
+        } finally {
+            em.close();
         }
-        return null;
+    }
+
+    // Buscar usuario por email
+    public Usuario findUsuarioByEmail(String email) {
+        EntityManager em = getEntityManager();
+        try {
+            Query query = em.createQuery("SELECT u FROM Usuario u WHERE u.email = :email");
+            query.setParameter("email", email);
+            List<Usuario> resultados = query.getResultList();
+            if (!resultados.isEmpty()) {
+                return resultados.get(0);
+            }
+            // No encontrado
+            return null;
+        } finally {
+            em.close();
+        }
     }
 }

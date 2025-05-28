@@ -11,12 +11,14 @@ import java.util.Objects;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
 /**
  *
  * @author Lu
@@ -30,20 +32,17 @@ public class Usuario implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 30, nullable = false)
     private String nombre;
 
-    @Column(length = 20, nullable = false, unique = true)
+    @Column(length = 50, nullable = false, unique = true)
     private String email;
 
-    @Column(length = 30, nullable = false)
+    @Column(length = 100, nullable = false)
     private String password;
 
     @Column(length = 50, nullable = false)
     private String direccion;
-
-    @Column(length = 10, nullable = false)
-    private int puntos;
 
     @Column(length = 20, nullable = false)
     private String tipo;
@@ -54,7 +53,7 @@ public class Usuario implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date fechaNacimiento;
 
-    @Column(length = 10)
+    @Column(length = 20)
     private String genero;
 
     @Column(length = 30)
@@ -62,14 +61,13 @@ public class Usuario implements Serializable {
 
     @Column(length = 500)
     private String comentarios;
-    
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Review> review;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Pedido> pedidos = new ArrayList<>();
 
-  
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> review = new ArrayList<>();
+
     public Long getId() {
         return id;
     }
@@ -108,14 +106,6 @@ public class Usuario implements Serializable {
 
     public void setDireccion(String direccion) {
         this.direccion = direccion;
-    }
-
-    public int getPuntos() {
-        return puntos;
-    }
-
-    public void setPuntos(int puntos) {
-        this.puntos = puntos;
     }
 
     public String getTipo() {
@@ -165,7 +155,7 @@ public class Usuario implements Serializable {
     public void setComentarios(String comentarios) {
         this.comentarios = comentarios;
     }
-    
+
     public List<Review> getReview() {
         return review;
     }
@@ -181,8 +171,6 @@ public class Usuario implements Serializable {
     public void setPedidos(List<Pedido> pedidos) {
         this.pedidos = pedidos;
     }
-
-   
 
     @Override
     public int hashCode() {
@@ -210,7 +198,5 @@ public class Usuario implements Serializable {
     public String toString() {
         return "Usuario{" + "id=" + id + '}';
     }
-    
-    
-    
+
 }

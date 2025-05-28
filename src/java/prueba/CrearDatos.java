@@ -26,6 +26,7 @@ import modelo.servicio.ServicioProducto;
 import modelo.servicio.ServicioProductoPersonalizado;
 import modelo.servicio.ServicioReview;
 import modelo.servicio.ServicioUsuario;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  *
@@ -54,21 +55,20 @@ public class CrearDatos extends HttpServlet {
         ServicioProducto sprod = new ServicioProducto(emf);
         ServicioProductoPersonalizado spp = new ServicioProductoPersonalizado(emf);
 
-        // ---------- Crear Usuario ----------
+        // Usuario normal
         Usuario usuario = new Usuario();
         usuario.setNombre("Lucía");
         usuario.setEmail("lucia@correo.com");
-        usuario.setPassword("Contrasena123@");
+        usuario.setPassword(BCrypt.hashpw("Contrasena123@", BCrypt.gensalt()));
         usuario.setDireccion("Calle Chocolate 123");
         usuario.setTipo("normal");
-        usuario.setPuntos(0);
         usuario.setTelefono("123456789");
         try {
             usuario.setFechaNacimiento(new SimpleDateFormat("yyyy-MM-dd").parse("1997-04-24"));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        usuario.setGenero("Femenino");
+        usuario.setGenero("femenino");
         usuario.setSaborFavorito("Negro");
         usuario.setComentarios("Usuario de prueba creado automáticamente");
 
@@ -78,18 +78,41 @@ public class CrearDatos extends HttpServlet {
             e.printStackTrace();
         }
 
-        // ---------- Crear Productos base ----------
+        // Usuario admin
+        Usuario admin = new Usuario();
+        admin.setNombre("Admin");
+        admin.setEmail("admin@admin.com");
+        admin.setPassword(BCrypt.hashpw("Admin123@", BCrypt.gensalt()));
+        admin.setDireccion("Calle Central 456");
+        admin.setTipo("admin");
+        admin.setTelefono("987654321");
+        try {
+            admin.setFechaNacimiento(new SimpleDateFormat("yyyy-MM-dd").parse("1990-01-01"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        admin.setGenero("masculino");
+        admin.setSaborFavorito("Blanco");
+        admin.setComentarios("Administrador creado automáticamente");
+
+        try {
+            su.create(admin);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Productos
         Producto producto1 = new Producto();
         producto1.setTipo("Tarta Mediana");
         producto1.setDescripcion("Una deliciosa tarta hecha a mano con los mejores ingredientes");
-        producto1.setPrecio(25.50);
-        producto1.setImagen("tarta_corazon.jpg");
+        producto1.setPrecio(500);
+        producto1.setImagen("kraken.jpg");
 
         Producto producto2 = new Producto();
         producto2.setTipo("Tarta Pequeña");
-        producto2.setDescripcion("Tarta más pequeña pero igualmente deliciosa.");
-        producto2.setPrecio(15.00);
-        producto2.setImagen("tarta_pequena.jpg");
+        producto2.setDescripcion("Tarta más pequeña pero igualmente deliciosa");
+        producto2.setPrecio(200);
+        producto2.setImagen("flor.jpg");
 
         try {
             sprod.create(producto1);
@@ -98,27 +121,28 @@ public class CrearDatos extends HttpServlet {
             e.printStackTrace();
         }
 
-        // ---------- Crear Pedido ----------
+        // Pedido
         Pedido pedido = new Pedido();
         pedido.setFecha(new Date());
-        pedido.setEstado("pendiente");
-        pedido.setEntrega("Envío a domicilio");
+        pedido.setEstado("confirmado");
+        pedido.setEntrega("domicilio");
+        pedido.setDireccionEntrega(usuario.getDireccion());
         pedido.setUsuario(usuario);
 
-        // ---------- Crear Productos Personalizados ----------
+        // Productos personalizados
         ProductoPersonalizado pp1 = new ProductoPersonalizado();
-        pp1.setForma("Corazón");
-        pp1.setAlergenos("Sin gluten");
-        pp1.setDescripcion("Tarta personalizada sin gluten en forma de corazón");
-        pp1.setPrecio(30.00); 
+        pp1.setForma("kraken");
+        pp1.setAlergenos("sin-gluten");
+        pp1.setDescripcion("Tarta personalizada sin gluten con la forma del kraken");
+        pp1.setPrecio(500);
         pp1.setPedido(pedido);
         pp1.setProducto(producto1);
 
         ProductoPersonalizado pp2 = new ProductoPersonalizado();
-        pp2.setForma("Estrella");
-        pp2.setAlergenos("Contiene frutos secos");
-        pp2.setDescripcion("Tarta pequeña personalizada con decoración especial");
-        pp2.setPrecio(18.00);
+        pp2.setForma("dragon");
+        pp2.setAlergenos("sin-alergenos");
+        pp2.setDescripcion("Tarta pequeña con un dragon azul");
+        pp2.setPrecio(500);
         pp2.setPedido(pedido);
         pp2.setProducto(producto2);
 
@@ -127,18 +151,28 @@ public class CrearDatos extends HttpServlet {
         personalizados.add(pp2);
         pedido.setProductosPersonalizados(personalizados);
 
+        pedido.setPrecio(pp1.getPrecio() + pp2.getPrecio());
+
         try {
-            sp.create(pedido); 
+            sp.create(pedido);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // ---------- Crear Review ----------
+        // Review
         Review review = new Review();
         review.setValoracion(5);
-        review.setComentario("¡La tarta estaba deliciosa y llegó a tiempo!");
-        review.setImagenes("review1.jpg,review2.jpg");
+        review.setComentario("La tarta estaba deliciosa y llegó a tiempo");
+
+        // imágenes
+        List<String> imagenesPrueba = new ArrayList<>();
+        imagenesPrueba.add("kraken.jpg");
+        imagenesPrueba.add("dragonawa5.jpg");
+        review.setImagenes(imagenesPrueba);
+
         review.setUsuario(usuario);
+        review.setProductoPersonalizado(pp1);
+        review.setFecha(new Date());
 
         try {
             sr.create(review);
@@ -148,19 +182,21 @@ public class CrearDatos extends HttpServlet {
 
         emf.close();
 
-        // Mostrar respuesta en HTML
+        // Html
         try (PrintWriter out = response.getWriter()) {
             out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Crear Usuario de Prueba</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Usuario de prueba creado con éxito</h1>");
+            out.println("<html><head><title>Creación de Datos</title></head><body>");
+            out.println("<h1>Usuarios de prueba creados exitosamente</h1>");
+
+            out.println("<h2>Usuario Normal</h2>");
             out.println("<p>Email: " + usuario.getEmail() + "</p>");
-            out.println("<p>Nombre: " + usuario.getNombre() + "</p>");
-            out.println("</body>");
-            out.println("</html>");
+            out.println("<p>Contraseña: " + "Contrasena123@" + "</p>");
+
+            out.println("<h2>Usuario Administrador</h2>");
+            out.println("<p>Email: " + admin.getEmail() + "</p>");
+            out.println("<p>Contraseña: " + "Admin123@" + "</p>");
+
+            out.println("</body></html>");
         }
     }
 

@@ -38,7 +38,7 @@ public class ServicioProducto implements Serializable {
         try {
             em.getTransaction().begin();
 
-            // Establecer relación inversa
+            // Establecer relación 
             for (ProductoPersonalizado personalizado : producto.getProductosPersonalizados()) {
                 personalizado.setProducto(producto);
             }
@@ -94,6 +94,7 @@ public class ServicioProducto implements Serializable {
             Producto producto;
 
             try {
+                // Obtener referencia al producto
                 producto = em.getReference(Producto.class, id);
                 producto.getId();
             } catch (EntityNotFoundException enfe) {

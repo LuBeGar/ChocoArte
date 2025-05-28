@@ -4,11 +4,7 @@
 package controladores.admin;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.servlet.ServletException;
@@ -17,12 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import modelo.entidades.Pedido;
-import modelo.entidades.Producto;
-import modelo.entidades.ProductoPersonalizado;
-import modelo.entidades.Usuario;
 import modelo.servicio.ServicioPedido;
-import modelo.servicio.ServicioUsuario;
-import modelo.servicio.ServicioProducto;
 
 /**
  *
@@ -57,36 +48,36 @@ public class ControladorPedido extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String crear = request.getParameter("crear");
-        String idStr = request.getParameter("id");
-        String vista = "/producto.jsp";
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
+        ServicioPedido sp = new ServicioPedido(emf);
+        String vista = "/admin/gestionPedidos.jsp";
         String error = "";
+        String eliminar = request.getParameter("eliminar");
 
-        if (crear != null && idStr != null) {
+        // Si se selecciona eliminar, se elimina el pedido con ese id
+        if (eliminar != null && request.getParameter("id") != null) {
             try {
-                long id = Long.parseLong(idStr);
-                EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
-                ServicioProducto sp = new ServicioProducto(emf);
-                Producto producto = sp.findProducto(id);
-                if (producto != null) {
-                    request.setAttribute("producto", producto);
-                } else {
-                    error = "Producto no encontrado.";
-                }
+                long id = Long.parseLong(request.getParameter("id"));
+                sp.destroy(id);
                 emf.close();
+                response.sendRedirect("ControladorPedido");
+                return;
             } catch (Exception e) {
-                error = "Error al cargar el producto: " + e.getMessage();
+                error = "No se pudo eliminar el pedido: " + e.getMessage();
             }
-        } else {
-            error = "Solicitud inválida.";
         }
+
+        // Listar los pedidos
+        List<Pedido> pedidos = sp.findPedidoEntities();
+        request.setAttribute("pedidos", pedidos);
 
         if (!error.isEmpty()) {
             request.setAttribute("error", error);
         }
-
         getServletContext().getRequestDispatcher(vista).forward(request, response);
+        emf.close();
     }
+
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -98,8 +89,45 @@ public class ControladorPedido extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-   
-}
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("ChocoartePU");
+        ServicioPedido sp = new ServicioPedido(emf);
+        String error = "";
+
+        String actualizar = request.getParameter("actualizar");
+
+        // Si se selecciona actualizar el estado
+        if ("estado".equals(actualizar)) {
+            try {
+                long id = Long.parseLong(request.getParameter("id"));
+                String nuevoEstado = request.getParameter("estado");
+
+                // Se busca ese pedido y se le pone el nuevo estado
+                Pedido pedido = sp.findPedido(id);
+                if (pedido != null) {
+                    pedido.setEstado(nuevoEstado);
+                    sp.edit(pedido);
+
+                    // Redirigir a EnviarEmail pasando id y nuevoEstado
+                    emf.close();
+                    response.sendRedirect("EnviarEmail?id=" + id + "&estado=" + nuevoEstado);
+                    return;
+                } else {
+                    error = "Pedido no encontrado";
+                }
+            } catch (Exception e) {
+                error = "Error al actualizar el estado: " + e.getMessage();
+            }
+
+            if (!error.isEmpty()) {
+                request.setAttribute("error", error);
+                request.getServletContext().getRequestDispatcher("/admin/gestionPedidos.jsp").forward(request, response);
+                return;
+            }
+        }
+        emf.close();
+        response.sendRedirect("ControladorPedido");
+    }
+
     /**
      * Returns a short description of the servlet.
      *
