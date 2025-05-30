@@ -66,9 +66,9 @@
                 <div class="position-sticky" style="top: 90px; z-index: 1040;">
                     <h4 class="mb-4">Panel de Administración</h4>
                     <ul class="nav flex-column">
-                        <li class="nav-item"><a class="nav-link" href="ControladorProducto">Gestión de Productos</a></li>
                         <li class="nav-item"><a class="nav-link" href="ControladorUsuario">Gestión de Usuarios</a></li>
-                        <li class="nav-item"><a class="nav-link" href="ControladorPedido">Gestión de Pedidos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="ControladorProducto">Gestión de Productos</a></li>
+                        <li class="nav-item"><a class="nav-link" style="color:#b68d40" href="ControladorPedido">Gestión de Pedidos</a></li>
                         <li class="nav-item"><a class="nav-link" href="ControladorVentas">Estadísticas de ventas</a></li>
                     </ul>
                 </div>
@@ -102,7 +102,7 @@
                     <table class="table table-striped mt-3">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>Nº pedido</th>
                                 <th>Fecha</th>
                                 <th>Estado</th>
                                 <th>Precio</th>

@@ -83,8 +83,7 @@
                     <!-- Resumen del pedido -->
                     <c:if test="${not empty pedido}">
                         <div class="alert alert-info p-4 rounded-3 shadow-sm mb-4" style="background-color: rgba(0, 0, 0, 0.05)">
-                            <h5><i class="fas fa-shopping-cart me-2"></i> Número de pedido:</h5>
-                            <p>${pedido.id}</p>
+                            <h5><i class="fas fa-shopping-cart me-2"></i> Número de pedido para el seguimiento: ${pedido.id}</h5>
                             <p><strong>Total:</strong> ${pedido.precio}¤</p>
                         </div>
 
@@ -92,7 +91,6 @@
                         <table class="table table-striped mt-3">
                             <thead>
                                 <tr>
-                                    <th>#</th>
                                     <th>Forma</th>
                                     <th>Alérgenos</th>
                                     <th>Descripción</th>
@@ -103,7 +101,6 @@
                             <tbody>
                                 <c:forEach var="productosPersonalizado" items="${pedido.productosPersonalizados}">
                                     <tr>
-                                        <td>${productosPersonalizado.id}</td>
                                         <td>${productosPersonalizado.forma}</td>
                                         <td>${productosPersonalizado.alergenos}</td>
                                         <td>${productosPersonalizado.descripcion}</td>

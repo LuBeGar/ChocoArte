@@ -66,8 +66,8 @@
                 <div class="position-sticky" style="top: 90px; z-index: 1040;">
                     <h4 class="mb-4">Panel de Administración</h4>
                     <ul class="nav flex-column">
-                        <li class="nav-item"><a class="nav-link" href="#">Gestión de Productos</a></li>
                         <li class="nav-item"><a class="nav-link" href="ControladorUsuario">Gestión de Usuarios</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" style="color:#b68d40">Gestión de Productos</a></li>
                         <li class="nav-item"><a class="nav-link" href="ControladorPedido">Gestión de Pedidos</a></li>
                         <li class="nav-item"><a class="nav-link" href="ControladorVentas">Estadísticas de ventas</a></li>
                     </ul>
@@ -100,7 +100,6 @@
                 <table class="table table-striped mt-3">
                     <thead>
                         <tr>
-                            <th>#</th>
                             <th>Tipo</th>
                             <th>Precio</th>
                             <th>Descripción</th>
@@ -110,7 +109,6 @@
                     <tbody>
                         <c:forEach var="producto" items="${productos}">
                             <tr>
-                                <td>${producto.id}</td>
                                 <td>${producto.tipo}</td>
                                 <td>${producto.precio} ¤</td>
                                 <td>${producto.descripcion}</td>

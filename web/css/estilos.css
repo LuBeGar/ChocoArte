@@ -34,7 +34,9 @@ footer, .panel {
 .panel a:hover{
     color: #b68d40;
 }
-
+.navbar{
+    width: 100%;
+}
 .accordion-button {
     background-color: #b68d40;
     color: white;
@@ -78,6 +80,7 @@ footer, .panel {
 
 body{
     background-color: #ebcd95;
+    overflow-x: hidden;
 }
 
 .sombra{

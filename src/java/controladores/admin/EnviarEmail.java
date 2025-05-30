@@ -73,14 +73,14 @@ public class EnviarEmail extends HttpServlet {
                         if ("cancelado".equalsIgnoreCase(nuevoEstado)) {
                             subject = "Tu pedido ha sido cancelado";
                             text = "Hola " + usuario.getNombre() + ",\n\n"
-                                    + "Lamentamos informarte que tu pedido con ID #" + pedido.getId()
+                                    + "Lamentamos informarte que tu pedido con el número " + pedido.getId()
                                     + " ha sido cancelado.\n\n"
                                     + "Si tienes alguna duda, puedes contactar con nuestro equipo de soporte.\n\n"
                                     + "Un saludo,\nEl equipo de ChocoArte";
                         } else {
                             subject = "Actualización del estado de tu pedido";
                             text = "Hola " + usuario.getNombre() + ",\n\n"
-                                    + "Te informamos que el estado de tu pedido con ID #" + pedido.getId()
+                                    + "Te informamos que el estado de tu pedido con número " + pedido.getId()
                                     + " ha sido actualizado a: " + nuevoEstado + ".\n\n"
                                     + "Gracias por confiar en ChocoArte.\n\n"
                                     + "Un saludo,\nEl equipo de ChocoArte";

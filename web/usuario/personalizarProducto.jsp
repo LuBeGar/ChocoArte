@@ -102,7 +102,7 @@
                             <label for="forma" class="form-label"><strong>Forma del producto *</strong></label>
                             <input type="text" class="form-control shadow" id="forma" name="forma" 
                                    value="${forma}" 
-                                   placeholder="Ej: Redonda, corazón, personalizada..." required>
+                                   placeholder="Ej: Redonda, corazón, dragón..." required>
                             <div class="invalid-feedback">
                                 Por favor, indica la forma del producto.
                             </div>
@@ -113,7 +113,7 @@
                             <label for="alergenos" class="form-label"><strong>Alérgenos *</strong></label>
                             <select class="form-select shadow" id="alergenos" name="alergenos" onchange="gestionarOtrosAlergenos()" required>
                                 <option value="" disabled ${empty alergenos ? 'selected' : ''}>-- Seleccione una opción --</option>
-                                <option value="sin-alergenos" ${alergenos == 'sin-alergenos' ? 'selected' : ''}>Sin alérgenos</option>
+                                <option value="sin-alergenos" ${alergenos == 'sin-alergenos' ? 'selected' : ''}>Sin problema con alérgenos</option>
                                 <option value="sin-lactosa" ${alergenos == 'sin-lactosa' ? 'selected' : ''}>Sin lactosa</option>
                                 <option value="sin-gluten" ${alergenos == 'sin-gluten' ? 'selected' : ''}>Sin gluten</option>
                                 <option value="sin-huevo" ${alergenos == 'sin-huevo' ? 'selected' : ''}>Sin huevo</option>
@@ -141,7 +141,7 @@
                             <label for="descripcionPersonalizada" class="form-label"><strong>Descripción personalizada *</strong></label>
                             <textarea class="form-control shadow" id="descripcionPersonalizada" 
                                       name="descripcionPersonalizada" rows="3" 
-                                      placeholder="Ej: 'Quiero que diga Feliz Cumpleaños María'" required>${descripcionPersonalizada}</textarea>
+                                      placeholder="Ej: 'Quiero una tarta con forma del kraken sosteniendo un barco y sea de chocolate blanco'" required>${descripcionPersonalizada}</textarea>
                             <div class="invalid-feedback">
                                 Por favor, añade una descripción personalizada.
                             </div>

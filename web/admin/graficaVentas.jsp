@@ -81,10 +81,10 @@
                 <div class="position-sticky" style="top: 90px; z-index: 1040;">
                     <h4 class="mb-4">Panel de Administración</h4>
                     <ul class="nav flex-column">
-                        <li class="nav-item"><a class="nav-link" href="ControladorProducto">Gestión de Productos</a></li>
                         <li class="nav-item"><a class="nav-link" href="ControladorUsuario">Gestión de Usuarios</a></li>
+                        <li class="nav-item"><a class="nav-link" href="ControladorProducto">Gestión de Productos</a></li>
                         <li class="nav-item"><a class="nav-link" href="ControladorPedido">Gestión de Pedidos</a></li>
-                        <li class="nav-item"><a class="nav-link" href="ControladorVentas">Estadísticas de ventas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="ControladorVentas" style="color:#b68d40">Estadísticas de ventas</a></li>
                     </ul>
                 </div>
             </div>

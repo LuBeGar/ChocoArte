@@ -104,7 +104,7 @@
                         <table class="table table-striped mt-3">
                             <thead>
                                 <tr>
-                                    <th>#</th>
+                                    <th>Nº pedido</th>
                                     <th>Fecha</th>
                                     <th>Precio</th>
                                     <th>Estado</th>
@@ -114,7 +114,7 @@
                             <tbody>
                                 <c:forEach var="pedido" items="${pedidos}" varStatus="status">
                                     <tr>
-                                        <td>${status.index + 1}</td>
+                                        <td>${pedido.id}</td>
                                         <td><fmt:formatDate value="${pedido.fecha}" pattern="dd/MM/yyyy"/></td>
                                         <td>${pedido.precio} ¤</td>
                                         <td>${pedido.estado}</td>

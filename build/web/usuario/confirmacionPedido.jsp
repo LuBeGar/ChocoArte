@@ -83,8 +83,8 @@
                         <div class="card-body">
                             <div class="mb-4">
                                 <i class="fas fa-box-open fa-5x text-success mb-3"></i>
-                                <h3>¡Gracias por tu pedido!</h3>
-                                <p class="lead">Tu pedido #${param.pedidoId} ha sido registrado correctamente</p>
+                                <h3>¡Gracias por tu compra!</h3>
+                                <p class="lead">Tu pedido con número de seguimiento ${pedido.id} ha sido registrado correctamente</p>
                             </div>
 
                             <div class="alert alert-info">

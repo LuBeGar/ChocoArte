@@ -106,11 +106,12 @@
                                         <p class="text-muted mb-1"><strong>Fecha:</strong> <fmt:formatDate value="${review.fecha}" pattern="dd 'de' MMMM 'de' yyyy" /></p>
                                         <p class="text-muted mb-1">
                                             <strong>Valoración:</strong>
-                                            <c:forEach var="i" begin="1" end="5">
-                                                <i class="fas fa-star <c:if test='${i <= review.valoracion}'>text-warning</c:if>'"></i>
+                                            <c:forEach var="i" begin="1" end="${review.valoracion}">
+                                                <i class="fas fa-star text-warning"></i>
                                             </c:forEach>
                                             (${review.valoracion}/5)
                                         </p>
+
                                         <p class="text-muted mb-0">${review.comentario}</p>
                                         <c:if test="${not empty review.imagenes}">
                                             <div class="mt-3">

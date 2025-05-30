@@ -3,13 +3,17 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/admin/gestionPedidos.jsp</file>
             <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/js/personalizarProducto.js</file>
-            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/js/validacion.js</file>
+            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/admin/gestionProductos.jsp</file>
+            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/usuario/resumenPedido.jsp</file>
+            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/producto.jsp</file>
             <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/usuario/personalizarProducto.jsp</file>
-            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/src/java/controladores/admin/ControladorDetalleProducto.java</file>
-            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/js/alertas.js</file>
-            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/js/verCampos.js</file>
-            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/js/grafica.js</file>
+            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/css/estilos.css</file>
+            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/admin/gestionUsuarios.jsp</file>
+            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/usuario/inicioUsuario.jsp</file>
+            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/admin/graficaVentas.jsp</file>
+            <file>file:/C:/Users/Lu/Documents/NetBeansProjects/2DAW/Chocoarte/web/usuario/confirmacionPedido.jsp</file>
         </group>
     </open-files>
 </project-private>
